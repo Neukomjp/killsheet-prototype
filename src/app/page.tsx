@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import confetti from "canvas-confetti";
 import Editor from "../components/Editor";
 import Preview from "../components/Preview";
 
@@ -84,8 +85,25 @@ export default function Home() {
             achievements: ["定性的な入力を定量的な成果に自動変換しました。"]
           },
           ...data.projects
-        ]
+        ],
+        // スキルの動的変動（AI関連やバックエンドのスキルが上昇するシミュレーション）
+        skills: data.skills.map(skill => {
+          if (skill.subject === "Backend" || skill.subject === "Frontend") {
+            return { ...skill, A: Math.min(100, skill.A + 5) };
+          }
+          // ランダムに少し上昇する演出
+          return { ...skill, A: Math.min(100, skill.A + Math.floor(Math.random() * 3)) };
+        })
       });
+
+      // 成功した喜び（ゲーム的な成長実感）を演出する紙吹雪エフェクト
+      confetti({
+        particleCount: 150,
+        spread: 80,
+        origin: { y: 0.6 },
+        colors: ["#3b82f6", "#60a5fa", "#93c5fd", "#f59e0b", "#10b981"]
+      });
+
       setIsExtracting(false);
     }, 1500);
   };
