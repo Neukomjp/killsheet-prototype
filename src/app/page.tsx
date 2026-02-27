@@ -61,51 +61,60 @@ export default function Home() {
   const [data, setData] = useState<ResumeData>(initialData);
   const [isExtracting, setIsExtracting] = useState(false);
 
-  // モックの抽出機能処理
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleExtract = (text: string) => {
+  // 生成AI APIを呼び出してテキストを構造化する処理
+  const handleExtract = async (text: string) => {
     setIsExtracting(true);
-    // AIの抽出をシミュレーションするためのタイマー
-    setTimeout(() => {
-      // ランダムで点数を変えたり、テキストを適当に反映させるモック
-      setData({
-        ...data,
-        profile: {
-          ...data.profile,
-          score: Math.min(100, data.profile.score + 5),
-        },
-        // 本来は抽出したテキストから構造化データを作るが、今回はUIの体験確認なのでモックデータ追加
-        projects: [
-          {
-            id: Date.now().toString(),
-            period: "新規抽出",
-            role: "抽出された役割",
-            tech: ["New Tech", "AI"],
-            summary: "AIのモックAPIから即座に抽出されたプロジェクト履歴です。",
-            achievements: ["定性的な入力を定量的な成果に自動変換しました。"]
+
+    try {
+      // API Route へリクエスト送信
+      const response = await fetch('/api/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+
+      if (!response.ok) {
+        throw new Error('API request failed');
+      }
+
+      const result = await response.json();
+
+      if (result.projects && result.projects.length > 0) {
+        // 生成されたプロジェクトにランダムなIDを付与
+        const extractedProjects = result.projects.map((p: any) => ({
+          ...p,
+          id: Date.now().toString() + Math.random().toString(36).substring(7)
+        }));
+
+        setData(prevData => ({
+          ...prevData,
+          profile: {
+            ...prevData.profile,
+            score: Math.min(100, prevData.profile.score + 5),
           },
-          ...data.projects
-        ],
-        // スキルの動的変動（AI関連やバックエンドのスキルが上昇するシミュレーション）
-        skills: data.skills.map(skill => {
-          if (skill.subject === "Backend" || skill.subject === "Frontend") {
-            return { ...skill, A: Math.min(100, skill.A + 5) };
-          }
-          // ランダムに少し上昇する演出
-          return { ...skill, A: Math.min(100, skill.A + Math.floor(Math.random() * 3)) };
-        })
-      });
+          projects: [...extractedProjects, ...prevData.projects],
+          skills: prevData.skills.map(skill => {
+            if (skill.subject === "Backend" || skill.subject === "Frontend") {
+              return { ...skill, A: Math.min(100, skill.A + 5) };
+            }
+            return { ...skill, A: Math.min(100, skill.A + Math.floor(Math.random() * 3)) };
+          })
+        }));
 
-      // 成功した喜び（ゲーム的な成長実感）を演出する紙吹雪エフェクト
-      confetti({
-        particleCount: 150,
-        spread: 80,
-        origin: { y: 0.6 },
-        colors: ["#3b82f6", "#60a5fa", "#93c5fd", "#f59e0b", "#10b981"]
-      });
-
+        // 成功した喜びを演出する紙吹雪エフェクト
+        confetti({
+          particleCount: 150,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ["#3b82f6", "#60a5fa", "#93c5fd", "#f59e0b", "#10b981"]
+        });
+      }
+    } catch (error) {
+      console.error("抽出エラー:", error);
+      alert("テキストの抽出に失敗しました。\n・.env.local ファイルに OPENAI_API_KEY が設定されているか\n・ターミナルでサーバーを再起動したか\nを確認してください。");
+    } finally {
       setIsExtracting(false);
-    }, 1500);
+    }
   };
 
   return (
