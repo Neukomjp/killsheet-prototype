@@ -1,0 +1,2 @@
+Loading scopes窶ｦ
+Error: The specified token is not valid. Use `vercel login` to generate a new token.

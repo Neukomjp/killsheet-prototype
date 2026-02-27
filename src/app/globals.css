@@ -1,0 +1,35 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .print-exact {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+}
+
+@media print {
+  /* Hide everything except the preview area */
+  body * {
+    visibility: hidden;
+  }
+  #preview-area, #preview-area * {
+    visibility: visible;
+  }
+  #preview-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 210mm; /* A4 width */
+    height: 297mm; /* A4 height */
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    background: white;
+  }
+  @page {
+    size: A4;
+    margin: 0;
+  }
+}
