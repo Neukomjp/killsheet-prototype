@@ -62,7 +62,7 @@ export default function Preview({ data }: { data: ResumeData }) {
                         </h2>
 
                         <div className="space-y-8">
-                            {data.projects.map((project, idx) => (
+                            {data.projects.map((project) => (
                                 <div key={project.id} className="relative pl-4 border-l-2 border-slate-200 pb-2">
                                     <div className="absolute w-3 h-3 bg-slate-800 rounded-full -left-[7px] top-1"></div>
 

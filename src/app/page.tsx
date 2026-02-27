@@ -61,6 +61,7 @@ export default function Home() {
   const [isExtracting, setIsExtracting] = useState(false);
 
   // モックの抽出機能処理
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleExtract = (text: string) => {
     setIsExtracting(true);
     // AIの抽出をシミュレーションするためのタイマー
