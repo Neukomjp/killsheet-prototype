@@ -81,7 +81,7 @@ export default function Home() {
 
       if (result.projects && result.projects.length > 0) {
         // 生成されたプロジェクトにランダムなIDを付与
-        const extractedProjects = result.projects.map((p: any) => ({
+        const extractedProjects = result.projects.map((p: Omit<Project, "id">) => ({
           ...p,
           id: Date.now().toString() + Math.random().toString(36).substring(7)
         }));
