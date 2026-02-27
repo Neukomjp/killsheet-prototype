@@ -32,8 +32,8 @@ export default function Editor({ data, isExtracting, onExtract }: EditorProps) {
                     </div>
                 </div>
                 <div className="flex space-x-1 text-blue-500">
-                    <BadgeCheck size={24} title="基本入力完了" />
-                    <BadgeCheck size={24} title="成果の定量化" className="opacity-40" />
+                    <div title="基本入力完了"><BadgeCheck size={24} /></div>
+                    <div title="成果の定量化" className="opacity-40"><BadgeCheck size={24} /></div>
                 </div>
             </div>
 
@@ -79,6 +79,6 @@ export default function Editor({ data, isExtracting, onExtract }: EditorProps) {
                     <span>PDFで出力・印刷する</span>
                 </button>
             </div>
-        </div>
+        </div >
     );
 }
