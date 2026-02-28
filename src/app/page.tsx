@@ -62,31 +62,33 @@ export default function Home() {
         setData(prevData => {
           let updatedProjects = [...prevData.projects];
 
-          // ----- プロジェクト情報（Step 4, 5, 6）のマージロジック -----
+          // ----- プロジェクト情報（Step 5〜9）のマージロジック -----
           if (result.projects && result.projects.length > 0) {
             const extractedItem = result.projects[0];
 
-            if (step === 4) {
-              // Step 4: 新しいプロジェクトを追加
+            if (step === 5) {
+              // Step 5: 新しいプロジェクトを追加（概要のみ）
               updatedProjects = [
                 {
                   id: Date.now().toString() + Math.random().toString(36).substring(7),
-                  period: extractedItem.period || "",
-                  role: extractedItem.role || "",
+                  period: "",
+                  role: "",
                   summary: extractedItem.summary || "",
                   tech: [],
                   achievements: [],
                 },
                 ...updatedProjects
               ];
-            } else if (step === 5 || step === 6) {
-              // Step 5, 6: 直前に作られた配列の先頭のプロジェクトを更新
+            } else if (step >= 6 && step <= 9) {
+              // Step 6〜9: 直前に作られた配列の先頭のプロジェクトを更新
               if (updatedProjects.length > 0) {
                 updatedProjects[0] = {
                   ...updatedProjects[0],
-                  tech: step === 5 ? extractedItem.tech || [] : updatedProjects[0].tech,
-                  summary: step === 5 && extractedItem.summary ? extractedItem.summary : updatedProjects[0].summary,
-                  achievements: step === 6 ? extractedItem.achievements || [] : updatedProjects[0].achievements,
+                  period: step === 6 && extractedItem.period ? extractedItem.period : updatedProjects[0].period,
+                  role: step === 6 && extractedItem.role ? extractedItem.role : updatedProjects[0].role,
+                  tech: step === 7 ? extractedItem.tech || [] : updatedProjects[0].tech,
+                  summary: step === 8 && extractedItem.summary ? `${updatedProjects[0].summary} \n[担当工程] ${extractedItem.summary}` : updatedProjects[0].summary,
+                  achievements: step === 9 ? extractedItem.achievements || [] : updatedProjects[0].achievements,
                 };
               }
             }
@@ -109,7 +111,7 @@ export default function Home() {
         });
 
         // 成功した喜びを演出する紙吹雪エフェクト (最終ステップ)
-        if (step === 7) {
+        if (step === 11) {
           confetti({
             particleCount: 150,
             spread: 80,
