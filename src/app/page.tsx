@@ -8,7 +8,14 @@ import Preview from "../components/Preview";
 // Profile, Skills, Projects のデータ構造
 export type SkillNode = { subject: string; A: number; fullMark: number };
 export type Project = { id: string; period: string; role: string; tech: string[]; summary: string; achievements: string[] };
-export type Profile = { name: string; title: string; summary: string; score: number };
+export type Profile = {
+  name: string;
+  title: string;
+  summary: string;
+  score: number;
+  certifications: string[]; // 追加：資格
+  links: string[]; // 追加：ポートフォリオリンク
+};
 
 export type ResumeData = {
   profile: Profile;
@@ -22,6 +29,8 @@ const initialData: ResumeData = {
     title: "",
     summary: "",
     score: 0,
+    certifications: [],
+    links: [],
   },
   skills: [],
   projects: []
@@ -49,28 +58,58 @@ export default function Home() {
 
       const result = await response.json();
 
-      if (result.projects || result.profile) {
-        // 生成されたプロジェクトにランダムなIDを付与
-        const extractedProjects = (result.projects || []).map((p: Omit<Project, "id">) => ({
-          ...p,
-          id: Date.now().toString() + Math.random().toString(36).substring(7)
-        }));
+      if (result.projects || result.profile || result.skills) {
+        setData(prevData => {
+          let updatedProjects = [...prevData.projects];
 
-        setData(prevData => ({
-          profile: {
-            name: result.profile?.name || prevData.profile.name,
-            title: result.profile?.title || prevData.profile.title,
-            summary: result.profile?.summary || prevData.profile.summary,
-            score: Math.min(100, prevData.profile.score + 25),
-          },
-          skills: result.skills && result.skills.length > 0
-            ? result.skills.map((s: { subject: string; score: number }) => ({ subject: s.subject, A: s.score, fullMark: 100 }))
-            : prevData.skills,
-          projects: [...extractedProjects, ...prevData.projects],
-        }));
+          // ----- プロジェクト情報（Step 4, 5, 6）のマージロジック -----
+          if (result.projects && result.projects.length > 0) {
+            const extractedItem = result.projects[0];
 
-        // 成功した喜びを演出する紙吹雪エフェクト (最終ステップまたはプロジェクト追加時)
-        if (step === 3 || (result.projects && result.projects.length > 0)) {
+            if (step === 4) {
+              // Step 4: 新しいプロジェクトを追加
+              updatedProjects = [
+                {
+                  id: Date.now().toString() + Math.random().toString(36).substring(7),
+                  period: extractedItem.period || "",
+                  role: extractedItem.role || "",
+                  summary: extractedItem.summary || "",
+                  tech: [],
+                  achievements: [],
+                },
+                ...updatedProjects
+              ];
+            } else if (step === 5 || step === 6) {
+              // Step 5, 6: 直前に作られた配列の先頭のプロジェクトを更新
+              if (updatedProjects.length > 0) {
+                updatedProjects[0] = {
+                  ...updatedProjects[0],
+                  tech: step === 5 ? extractedItem.tech || [] : updatedProjects[0].tech,
+                  summary: step === 5 && extractedItem.summary ? extractedItem.summary : updatedProjects[0].summary,
+                  achievements: step === 6 ? extractedItem.achievements || [] : updatedProjects[0].achievements,
+                };
+              }
+            }
+          }
+
+          return {
+            profile: {
+              name: result.profile?.name || prevData.profile.name,
+              title: result.profile?.title || prevData.profile.title,
+              summary: result.profile?.summary || prevData.profile.summary,
+              score: Math.min(100, prevData.profile.score + 25),
+              certifications: result.profile?.certifications || prevData.profile.certifications,
+              links: result.profile?.links || prevData.profile.links,
+            },
+            skills: result.skills && result.skills.length > 0
+              ? result.skills.map((s: { subject: string; score: number }) => ({ subject: s.subject, A: s.score, fullMark: 100 }))
+              : prevData.skills,
+            projects: updatedProjects,
+          };
+        });
+
+        // 成功した喜びを演出する紙吹雪エフェクト (最終ステップ)
+        if (step === 7) {
           confetti({
             particleCount: 150,
             spread: 80,

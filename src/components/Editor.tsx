@@ -12,18 +12,28 @@ interface EditorProps {
 
 export default function Editor({ data, isExtracting, onExtract }: EditorProps) {
     const [currentStep, setCurrentStep] = useState(1);
-    const [inputs, setInputs] = useState({ 1: "", 2: "", 3: "" });
+    const [inputs, setInputs] = useState({ 1: "", 2: "", 3: "", 4: "", 5: "", 6: "", 7: "" });
+
+    const totalSteps = 7;
 
     const placeholders = {
-        1: "例：山田太郎です。バックエンドエンジニアとしてGoやPythonを書いています。AWSなどのインフラ構築も行えます。",
-        2: "例：アーキテクチャ設計から実装まで一人称で完結できるのが強みです。また、後輩の育成や勉強会の立ち上げなども積極的に行っています。",
-        3: "例：2021年〜現在まで、大手ECサイトの決済基盤システムのリプレイスを担当。オンプレミスからAWSへの移行を主導し、リリース時間を半分に短縮しました。"
+        1: "例：山田太郎です。サーバーサイドエンジニアとして働いています。",
+        2: "例：要件定義から実装まで、一人称で完結できるのが強みです。また、後輩の育成やコードレビュー文化の推進にも貢献してきました。",
+        3: "例：業務ではJavaとSpring Bootを3年、AWS(EC2, RDS)でのインフラ構築を経験しました。個人開発でReactも少し触っています。",
+        4: "例：2022年から1年間、大手ECサイトの決済システムのリプレイスを行いました。5名チームのテックリードでした。",
+        5: "例：要件定義からリリースまで一貫して担当しました。技術はGo、PostgreSQL、Docker、AWS ECSを使用しました。",
+        6: "例：既存のレガシーコードの解読に苦労しましたが、テストを拡充しながらリファクタリングを完遂し、処理時間を30%削減しました。",
+        7: "例：AWS認定ソリューションアーキテクト アソシエイトを持っています。GitHub: https://github.com/..."
     };
 
     const titles = {
-        1: "Step 1: あなたの基本情報とスキル",
-        2: "Step 2: エンジニアとしての強みやPR",
-        3: "Step 3: 具体的なプロジェクト経験"
+        1: "Step 1: お名前と現在のメインの職種を教えてください。",
+        2: "Step 2: ご自身の「強み」や「得意なこと」は何ですか？",
+        3: "Step 3: これまで経験した主な言語やツール、インフラ技術を教えてください。",
+        4: "Step 4: 一番アピールしたいプロジェクトの概要（期間、チーム規模、担当役割）を教えてください。",
+        5: "Step 5: そのプロジェクトで使用した「技術・環境」と「担当した工程」を教えてください。",
+        6: "Step 6: そのプロジェクトで「一番苦労した点」や「達成した成果・実績」を教えてください。",
+        7: "Step 7: 保有資格や、GitHub/QiitaなどのポートフォリオURLがあれば教えてください。"
     };
 
     const handleNext = () => {
@@ -31,7 +41,7 @@ export default function Editor({ data, isExtracting, onExtract }: EditorProps) {
         if (text.trim()) {
             onExtract(text, currentStep);
         }
-        if (currentStep < 3) setCurrentStep(c => c + 1);
+        if (currentStep < totalSteps) setCurrentStep(c => c + 1);
     };
 
     const handlePrev = () => {
@@ -63,8 +73,8 @@ export default function Editor({ data, isExtracting, onExtract }: EditorProps) {
             </div>
 
             {/* ウィザード進捗バー */}
-            <div className="flex space-x-2 pb-2">
-                {[1, 2, 3].map(step => (
+            <div className="flex space-x-1 pb-2">
+                {Array.from({ length: totalSteps }, (_, i) => i + 1).map(step => (
                     <div
                         key={step}
                         className={`h-2 flex-1 rounded-full transition-colors ${currentStep >= step ? 'bg-blue-600' : 'bg-gray-200'}`}
@@ -105,7 +115,7 @@ export default function Editor({ data, isExtracting, onExtract }: EditorProps) {
                         ) : (
                             <div className="flex items-center space-x-2">
                                 <Wand2 size={18} />
-                                <span>{currentStep === 3 ? "完了（追加）" : "次へ進む (AI自動反映)"}</span>
+                                <span>{currentStep === totalSteps ? "完了（反映する）" : "次へ進む (AI自動反映)"}</span>
                             </div>
                         )}
                     </button>

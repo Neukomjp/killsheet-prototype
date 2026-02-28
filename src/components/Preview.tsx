@@ -2,7 +2,7 @@
 
 import { ResumeData } from "../app/page";
 import RadarChartComponent from "./RadarChart";
-import { User, Briefcase, Award } from "lucide-react";
+import { User, Briefcase, Award, GraduationCap, Link2 } from "lucide-react";
 
 export default function Preview({ data }: { data: ResumeData }) {
     const isEmpty = !data.profile.name && data.projects.length === 0;
@@ -59,6 +59,40 @@ export default function Preview({ data }: { data: ResumeData }) {
                                     ))}
                                 </div>
                             </section>
+
+                            {/* 資格や付加情報 */}
+                            {data.profile.certifications && data.profile.certifications.length > 0 && (
+                                <section>
+                                    <h2 className="text-lg font-bold flex items-center space-x-2 text-slate-800 mb-3">
+                                        <GraduationCap size={20} />
+                                        <span>Certifications</span>
+                                    </h2>
+                                    <ul className="list-disc list-inside space-y-1 text-sm text-slate-600">
+                                        {data.profile.certifications.map((cert, i) => (
+                                            <li key={i}>{cert}</li>
+                                        ))}
+                                    </ul>
+                                </section>
+                            )}
+
+                            {/* リンク情報 */}
+                            {data.profile.links && data.profile.links.length > 0 && (
+                                <section>
+                                    <h2 className="text-lg font-bold flex items-center space-x-2 text-slate-800 mb-3">
+                                        <Link2 size={20} />
+                                        <span>Links</span>
+                                    </h2>
+                                    <ul className="space-y-2 text-sm text-blue-600 break-all">
+                                        {data.profile.links.map((link, i) => (
+                                            <li key={i}>
+                                                <a href={link} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                                                    {link}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </section>
+                            )}
                         </div>
 
                         {/* Right Column (Projects) */}
