@@ -16,13 +16,17 @@ interface EditorProps {
     onImportAll?: (importedData: ResumeData) => void;
     // Step 14（最適化）結果反映用コールバックを追加
     onOptimizeProfile?: (optimizedData: { summary: string; pr: string }) => void;
+    // URLパース（Step 13）結果反映用コールバックを追加
+    onParseUrl?: (parsedData: { skills: string[]; prText: string; originUrl: string }) => void;
 }
 
-export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, onDirectSkillsUpdate, onImportAll, onOptimizeProfile }: EditorProps) {
+export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, onDirectSkillsUpdate, onImportAll, onOptimizeProfile, onParseUrl }: EditorProps) {
     const [currentStep, setCurrentStep] = useState(1);
     const [inputs, setInputs] = useState<Record<number, string>>({});
     const [isImporting, setIsImporting] = useState(false);
     const [isOptimizing, setIsOptimizing] = useState(false);
+    const [isParsingUrl, setIsParsingUrl] = useState(false);
+    const [urlInput, setUrlInput] = useState("");
 
     // Step 1 専用の各フィールドのローカル状態
     const [step1Data, setStep1Data] = useState({
@@ -244,6 +248,37 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
             setIsImporting(false);
             // reset file input
             if (e.target) e.target.value = "";
+        }
+    };
+
+    const handleParseUrl = async () => {
+        if (!urlInput.trim()) return;
+        setIsParsingUrl(true);
+        try {
+            const res = await fetch("/api/parse-url", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ url: urlInput })
+            });
+            if (!res.ok) throw new Error("URL parse failed");
+
+            const result = await res.json();
+            if (onParseUrl) {
+                onParseUrl(result);
+            }
+
+            // 成功したら入力欄を空にして、資格・リンク枠（inputs[13]）の末尾にURLを追記しておく
+            setInputs(prev => ({
+                ...prev,
+                13: prev[13] ? `${prev[13]}\n${urlInput}` : urlInput
+            }));
+            setUrlInput("");
+
+        } catch (error) {
+            console.error("Parse URL Error:", error);
+            alert("URLの読み込み・解析に失敗しました。");
+        } finally {
+            setIsParsingUrl(false);
         }
     };
 
@@ -507,6 +542,74 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                                 className="px-6 py-4 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-sm transition-all"
                             >
                                 いいえ（次のステップへ）
+                            </button>
+                        </div>
+                    </div>
+                ) : currentStep === 13 ? (
+                    // Step 13: 資格・リンク + 外部URLパースUI
+                    <div className="flex-1 flex flex-col space-y-4">
+                        <div className="space-y-2 bg-blue-50/50 border border-blue-100 rounded-xl p-4 mb-2">
+                            <label className="text-xs font-bold text-blue-800 flex items-center">
+                                <Wand2 size={14} className="mr-1" />
+                                外部URLから実績を自動読み込み
+                            </label>
+                            <div className="flex space-x-2">
+                                <input
+                                    type="url"
+                                    placeholder="GitHub, Qiita, Zenn などのURL"
+                                    value={urlInput}
+                                    onChange={(e) => setUrlInput(e.target.value)}
+                                    className="flex-1 bg-white border border-blue-200 rounded-lg p-2.5 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
+                                />
+                                <button
+                                    onClick={handleParseUrl}
+                                    disabled={!urlInput.trim() || isParsingUrl}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 rounded-lg transition-colors flex items-center justify-center disabled:opacity-50 min-w-[100px]"
+                                >
+                                    {isParsingUrl ? (
+                                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                    ) : (
+                                        "読み込む"
+                                    )}
+                                </button>
+                            </div>
+                            <p className="text-[10px] text-blue-600/70">
+                                ※URL先のページ内容からAIがスキルや実績を解析し、あなたの経歴情報に自動で合流・追記します。
+                            </p>
+                        </div>
+
+                        <p className="text-sm font-bold text-gray-700">その他の資格やリンク（手動入力）</p>
+                        <textarea
+                            className="flex-1 w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none leading-relaxed"
+                            placeholder={placeholders[13]}
+                            value={inputs[13] || ""}
+                            onChange={(e) => setInputs(prev => ({ ...prev, 13: e.target.value }))}
+                        />
+
+                        <div className="flex space-x-3 pt-2">
+                            <button
+                                onClick={handlePrev}
+                                disabled={isExtracting || isParsingUrl}
+                                className="w-1/3 bg-white hover:bg-gray-50 text-gray-700 font-medium py-3 px-4 rounded-xl border border-gray-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                戻る
+                            </button>
+                            <button
+                                onClick={handleNext}
+                                disabled={isExtracting || isParsingUrl || !(inputs[13] || "").trim()}
+                                className="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                {isExtracting ? (
+                                    <div className="flex items-center space-x-2">
+                                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                                        <span>構造化しています...</span>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center space-x-2">
+                                        <Wand2 size={18} />
+                                        <span>次へ進む (AI自動反映)</span>
+                                    </div>
+                                )}
                             </button>
                         </div>
                     </div>

@@ -12,6 +12,7 @@
     "@ai-sdk/openai": "^3.0.36",
     "ai": "^6.0.103",
     "canvas-confetti": "^1.9.4",
+    "cheerio": "^1.2.0",
     "clsx": "^2.1.1",
     "lucide-react": "^0.575.0",
     "next": "14.2.35",

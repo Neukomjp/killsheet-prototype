@@ -215,6 +215,49 @@ export default function Home() {
     });
   };
 
+  // URLパース（Step 13）結果の反映処理（既存データへのマージ）
+  const handleParseUrl = (parsedData: { skills: string[]; prText: string; originUrl: string }) => {
+    setData(prevData => {
+      // 既存のスキル名の配列を取得
+      const existingSkillNames = prevData.skills.map(s => s.subject.toLowerCase());
+
+      // AIが抽出した新しいスキルを追加（重複排除）
+      const newSkills = parsedData.skills
+        .filter(skill => !existingSkillNames.includes(skill.toLowerCase()))
+        .map(skill => ({
+          subject: skill,
+          A: 60, // 外部判定起因のスキルはとりあえず60点とする
+          fullMark: 100
+        }));
+
+      // 自己PR文への追記
+      const currentPr = prevData.profile.pr || "";
+      let newPr = currentPr;
+      if (parsedData.prText) {
+        newPr = currentPr
+          ? `${currentPr}\n\n【外部実績 (${new URL(parsedData.originUrl).hostname})】\n${parsedData.prText}`
+          : `【外部実績 (${new URL(parsedData.originUrl).hostname})】\n${parsedData.prText}`;
+      }
+
+      return {
+        ...prevData,
+        profile: {
+          ...prevData.profile,
+          pr: newPr
+        },
+        skills: [...prevData.skills, ...newSkills].slice(0, 10) // 最大でも10個程度に制限してチャートを破綻させない
+      };
+    });
+
+    // 抽出成功の紙吹雪エフェクト（緑・青系）
+    confetti({
+      particleCount: 100,
+      spread: 60,
+      origin: { y: 0.6 },
+      colors: ["#10b981", "#3b82f6", "#0ea5e9"]
+    });
+  };
+
   return (
     <main className="flex h-screen bg-gray-100 overflow-hidden text-slate-800">
       {/* 左側：エディタ領域 */}
@@ -227,6 +270,7 @@ export default function Home() {
           onDirectSkillsUpdate={handleDirectSkillsUpdate}
           onImportAll={handleImportAll}
           onOptimizeProfile={handleOptimizeProfile}
+          onParseUrl={handleParseUrl}
         />
       </div>
 
