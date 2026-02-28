@@ -18,43 +18,13 @@ export type ResumeData = {
 
 const initialData: ResumeData = {
   profile: {
-    name: "山田 太郎",
-    title: "フロントエンド / フルスタックエンジニア",
-    summary: "React, Next.js を用いたモダンなWebフロントエンド開発を中心に5年の経験があります。BtoB SaaSのダッシュボード構築や、パフォーマンス改善を得意としています。",
-    score: 85, // 完成度スコア
+    name: "",
+    title: "",
+    summary: "",
+    score: 0,
   },
-  skills: [
-    { subject: "Frontend", A: 90, fullMark: 100 },
-    { subject: "Backend", A: 70, fullMark: 100 },
-    { subject: "Infra/Cloud", A: 60, fullMark: 100 },
-    { subject: "CI/CD", A: 80, fullMark: 100 },
-    { subject: "Team Lead", A: 75, fullMark: 100 },
-  ],
-  projects: [
-    {
-      id: "1",
-      period: "2022.04 - 現在",
-      role: "テックリード / フロントエンド開発",
-      tech: ["React", "Next.js", "TypeScript", "Tailwind CSS"],
-      summary: "スタートアップ向けの人事管理SaaS新規開発プロジェクト。",
-      achievements: [
-        "初期設計からメイン開発を担当し、半年でMVPリリースを達成。",
-        "Lighthouseのパフォーマンススコアを平均90点以上に保つアーキテクチャ設計。",
-        "Storybookを活用したUIコンポーネント管理により、デザイナーとの連携コストを30%削減。"
-      ]
-    },
-    {
-      id: "2",
-      period: "2020.01 - 2022.03",
-      role: "バックエンドエンジニア",
-      tech: ["Node.js", "Express", "PostgreSQL", "AWS"],
-      summary: "ECサイトの裏側を支える在庫管理システムのAPI開発。",
-      achievements: [
-        "決済システムの非同期処理リファクタリングにより、ピーク時のサーバーダウンをゼロに改善。",
-        "GitHub Actionsを用いたCI/CDパイプラインの構築。"
-      ]
-    }
-  ]
+  skills: [],
+  projects: []
 };
 
 export default function Home() {
@@ -79,26 +49,24 @@ export default function Home() {
 
       const result = await response.json();
 
-      if (result.projects && result.projects.length > 0) {
+      if (result.projects || result.profile) {
         // 生成されたプロジェクトにランダムなIDを付与
-        const extractedProjects = result.projects.map((p: Omit<Project, "id">) => ({
+        const extractedProjects = (result.projects || []).map((p: Omit<Project, "id">) => ({
           ...p,
           id: Date.now().toString() + Math.random().toString(36).substring(7)
         }));
 
         setData(prevData => ({
-          ...prevData,
           profile: {
-            ...prevData.profile,
-            score: Math.min(100, prevData.profile.score + 5),
+            name: result.profile?.name || prevData.profile.name,
+            title: result.profile?.title || prevData.profile.title,
+            summary: result.profile?.summary || prevData.profile.summary,
+            score: Math.min(100, prevData.profile.score + 25),
           },
+          skills: result.skills && result.skills.length > 0
+            ? result.skills.map((s: { subject: string; score: number }) => ({ subject: s.subject, A: s.score, fullMark: 100 }))
+            : prevData.skills,
           projects: [...extractedProjects, ...prevData.projects],
-          skills: prevData.skills.map(skill => {
-            if (skill.subject === "Backend" || skill.subject === "Frontend") {
-              return { ...skill, A: Math.min(100, skill.A + 5) };
-            }
-            return { ...skill, A: Math.min(100, skill.A + Math.floor(Math.random() * 3)) };
-          })
         }));
 
         // 成功した喜びを演出する紙吹雪エフェクト
