@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ResumeData } from "../app/page";
-import { Wand2, Printer, Trophy, BadgeCheck, UploadCloud } from "lucide-react";
+import { Wand2, Printer, Trophy, BadgeCheck, UploadCloud, Download, Upload } from "lucide-react";
 
 interface EditorProps {
     data: ResumeData;
@@ -280,6 +280,42 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
         } finally {
             setIsParsingUrl(false);
         }
+    };
+
+    const handleExportJson = () => {
+        const jsonString = JSON.stringify(data, null, 2);
+        const blob = new Blob([jsonString], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `skillsheet_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    const handleImportJson = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
+
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            try {
+                const json = JSON.parse(event.target?.result as string) as ResumeData;
+                if (onImportAll) {
+                    onImportAll(json);
+                    alert("データの復元に成功しました。");
+                }
+            } catch (error) {
+                console.error("JSON parse error:", error);
+                alert("ファイルの読み込みに失敗しました。正しいJSONファイルを選択してください。");
+            }
+        };
+        reader.readAsText(file);
+
+        // inputをリセット
+        e.target.value = "";
     };
 
     return (
@@ -653,8 +689,8 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                 )}
             </div>
 
-            {/* 印刷・プレビューボタン */}
-            <div className="pt-4 border-t border-gray-100">
+            {/* アクションボタン群 */}
+            <div className="pt-4 border-t border-gray-100 space-y-3">
                 <button
                     onClick={() => window.print()}
                     className="w-full bg-white hover:bg-gray-50 text-gray-700 font-medium py-3 px-4 rounded-xl border border-gray-200 flex items-center justify-center space-x-2 transition-colors"
@@ -662,6 +698,31 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                     <Printer size={18} />
                     <span>PDFで出力・印刷する</span>
                 </button>
+                <div className="flex space-x-3">
+                    <button
+                        onClick={handleExportJson}
+                        className="flex-1 bg-white hover:bg-gray-50 text-gray-600 text-sm font-medium py-2 px-4 rounded-lg border border-gray-200 flex items-center justify-center space-x-2 transition-colors"
+                        title="現在のデータをJSONファイルとしてPCに保存します"
+                    >
+                        <Download size={16} />
+                        <span>JSON保存</span>
+                    </button>
+                    <div className="flex-1 relative">
+                        <input
+                            type="file"
+                            accept=".json,application/json"
+                            onChange={handleImportJson}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                            title="保存したJSONファイルを読み込んで復元します"
+                        />
+                        <button
+                            className="w-full bg-white hover:bg-gray-50 text-gray-600 text-sm font-medium py-2 px-4 rounded-lg border border-gray-200 flex items-center justify-center space-x-2 transition-colors pointer-events-none"
+                        >
+                            <Upload size={16} />
+                            <span>JSON読込</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div >
     );
