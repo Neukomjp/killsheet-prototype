@@ -56,7 +56,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
         ]
     };
 
-    const totalSteps = 11;
+    const totalSteps = 13;
 
     const placeholders: Record<number, string> = {
         2: "例：アーキテクチャ設計から実装まで一人称で完結できるのが強みです。後輩の育成やコードレビュー文化の推進にも貢献してきました。",
@@ -65,7 +65,9 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
         7: "例：言語はGo、DBはPostgreSQL、インフラはAWS ECSを使用しました。",
         8: "例：要件定義から基本設計、一部実装とテストまで一貫して担当しました。",
         9: "例：既存のレガシーコードの解読に苦労しましたが、テストを拡充しながらリファクタリングを完遂し、処理時間を30%削減しました。",
-        11: "例：AWS認定ソリューションアーキテクト アソシエイトを持っています。GitHub: https://github.com/..."
+        10: "例：3名のバックエンドチームでプレイングマネージャーを務めました。若手のコードレビューや目標設定、1on1などを実施していました。",
+        11: "例：リリース頻度を上げるため、GitHub Actionsを用いたCI/CDパイプラインを構築し、デプロイ工数を週4時間削減しました。",
+        13: "例：AWS認定ソリューションアーキテクト アソシエイトを持っています。GitHub: https://github.com/..."
     };
 
     const titles: Record<number, string> = {
@@ -78,8 +80,10 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
         7: "Step 7: そのプロジェクトで使用した「言語・フレームワーク・インフラ」は何でしたか？",
         8: "Step 8: あなたが「担当した工程」はどこでしたか？",
         9: "Step 9: そのプロジェクトで「一番苦労したこと・達成した成果」を教えてください。",
-        10: "Step 10: ほかに書きたいプロジェクトはありますか？",
-        11: "Step 11: 保有しているIT資格や、ポートフォリオ（GitHub等）のURLがあれば教えてください。"
+        10: "Step 10: チームマネジメントや、後輩育成・技術リードの経験があれば教えてください。（メンバー数、スクラムマスター経験など）",
+        11: "Step 11: 技術以外で、プロセス改善や売上向上等、ビジネス・チーム全体に与えたインパクトがあれば教えてください。",
+        12: "Step 12: ほかに書きたいプロジェクトはありますか？",
+        13: "Step 13: 保有しているIT資格や、ポートフォリオ（GitHub等）のURLがあれば教えてください。"
     };
 
     const handleNext = () => {
@@ -128,7 +132,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
             return;
         }
 
-        if (text.trim() && currentStep !== 10) {
+        if (text.trim() && currentStep !== 12) {
             onExtract(text, currentStep);
         }
         if (currentStep < totalSteps) setCurrentStep(c => c + 1);
@@ -141,6 +145,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
     const handleLoop = (yes: boolean) => {
         if (yes) {
             // Step 5に戻り、プロジェクト系の入力をリセット
+            // マネジメント等（Step 10,11）は保持させたい場合は消さない
             setInputs(prev => {
                 const newInputs = { ...prev };
                 [5, 6, 7, 8, 9].forEach(step => delete newInputs[step]);
@@ -148,8 +153,8 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
             });
             setCurrentStep(5);
         } else {
-            // 次のステップへ
-            setCurrentStep(11);
+            // 次のステップ（資格）へ
+            setCurrentStep(13);
         }
     };
 
@@ -364,8 +369,8 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                             </button>
                         </div>
                     </div>
-                ) : currentStep === 10 ? (
-                    // Step 10: 複数プロジェクト分岐用UI
+                ) : currentStep === 12 ? (
+                    // Step 12: 複数プロジェクト分岐用UI
                     <div className="flex-1 flex flex-col justify-center items-center space-y-4 bg-gray-50 border border-gray-200 rounded-xl p-6">
                         <p className="text-gray-600 font-medium">これまでの入力が1件のプロジェクトとして追加されています。</p>
                         <div className="flex space-x-4 w-full justify-center">

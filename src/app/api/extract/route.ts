@@ -85,7 +85,21 @@ export async function POST(req: Request) {
             });
             promptText = `以下の「一番苦労したこと・達成した成果」のメモから、職務経歴書のアピールポイントとなるような箇条書きのリスト（achievements）を生成しJSONで返してください。
 ポイント：入力が不十分な場合でも、エンジニアとしての一般的な創意工夫や、STAR法（状況・課題解決のための行動・もたらした結果）の要素を推測で補完し、可能な限り定量的・具体的なプロフェッショナルな実績として3〜4個の箇条書きに仕上げてください。\n\n入力テキスト:\n${text}`;
-        } else if (step === 11) { // 資格・リンク
+        } else if (step === 10) { // マネジメント・リーダー経験
+            schemaConfig = z.object({
+                profile: z.object({
+                    achievements: z.array(z.string()).describe("マネジメントやチームリード、育成に関するアピールポイント（箇条書き1〜2個程度）"),
+                })
+            });
+            promptText = `以下の「マネジメントや後輩育成、技術リードの経験」のメモから、職務要約や自己PRに追記・活用できるようなプロフェッショナルな実績リストを抽出し、箇条書き（achievements）としてJSONで返してください。入力が短い場合でも一般的なリーダーシップの工夫を補完してください。\n\n入力テキスト:\n${text}`;
+        } else if (step === 11) { // ビジネス・チームへの貢献
+            schemaConfig = z.object({
+                profile: z.object({
+                    achievements: z.array(z.string()).describe("プロセス改善、売上向上、コスト削減などビジネス的貢献のアピールポイント（箇条書き1〜2個程度）"),
+                })
+            });
+            promptText = `以下の「技術以外でのビジネスやチームへの貢献（プロセス改善等）」のメモから、エンジニアとしての視座の高さをアピールできる実績リストを抽出し、箇条書き（achievements）としてJSONで返してください。入力が短い場合でも一般的なプロセス改善の工夫を補完してください。\n\n入力テキスト:\n${text}`;
+        } else if (step === 13) { // 資格・リンク
             schemaConfig = z.object({
                 profile: z.object({
                     certifications: z.array(z.string()).describe("保有資格のリスト"),

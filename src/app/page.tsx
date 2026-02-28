@@ -102,11 +102,26 @@ export default function Home() {
             }
           }
 
+          // ----- プロフィール情報（Step 10, 11等）のマージロジック -----
+          let updatedSummary = prevData.profile.summary;
+          if (step === 10 && result.profile?.achievements) {
+            // マネジメント系の実績を要約テキストに追記（プレビュー側で表示させるための一時措置）
+            const mgmtText = result.profile.achievements.map((a: string) => `・${a}`).join('\n');
+            updatedSummary = updatedSummary ? `${updatedSummary}\n\n【マネジメント・リーダー経験】\n${mgmtText}` : `【マネジメント・リーダー経験】\n${mgmtText}`;
+          } else if (step === 11 && result.profile?.achievements) {
+            // ビジネス貢献系の実績を要約テキストに追記
+            const bizText = result.profile.achievements.map((a: string) => `・${a}`).join('\n');
+            updatedSummary = updatedSummary ? `${updatedSummary}\n\n【ビジネス・チームへの貢献】\n${bizText}` : `【ビジネス・チームへの貢献】\n${bizText}`;
+          } else if (result.profile?.summary && step !== 10 && step !== 11) {
+            // 通常の職務要約（Step 2など）の場合
+            updatedSummary = result.profile.summary;
+          }
+
           return {
             profile: {
               name: result.profile?.name || prevData.profile.name,
               title: result.profile?.title || prevData.profile.title,
-              summary: result.profile?.summary || prevData.profile.summary,
+              summary: updatedSummary,
               score: Math.min(100, prevData.profile.score + 25),
               certifications: result.profile?.certifications || prevData.profile.certifications,
               links: result.profile?.links || prevData.profile.links,
@@ -122,7 +137,7 @@ export default function Home() {
         });
 
         // 成功した喜びを演出する紙吹雪エフェクト (最終ステップ)
-        if (step === 11) {
+        if (step === 13) {
           confetti({
             particleCount: 150,
             spread: 80,
