@@ -2,7 +2,7 @@
 
 import { ResumeData } from "../app/page";
 import RadarChartComponent from "./RadarChart";
-import { User, Briefcase, Award, GraduationCap, Link2 } from "lucide-react";
+import { User, Briefcase, Award, GraduationCap, Link2, Star } from "lucide-react";
 
 export default function Preview({ data }: { data: ResumeData }) {
     const isEmpty = !data.profile.name && data.projects.length === 0;
@@ -28,18 +28,18 @@ export default function Preview({ data }: { data: ResumeData }) {
                             </div>
                         </div>
                         {/* 拡充された基本情報一覧 */}
-                        <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600 mt-2">
+                        <div className="grid grid-cols-2 gap-x-8 gap-y-2 mt-4 pt-4 border-t border-slate-200">
                             {data.profile.age && (
-                                <p><span className="font-semibold text-slate-700 mr-1">生年月日/年齢:</span>{data.profile.age}</p>
+                                <div className="flex text-sm"><span className="w-28 font-bold text-slate-700">生年月日/年齢</span><span className="text-slate-600">{data.profile.age}</span></div>
                             )}
                             {data.profile.address && (
-                                <p><span className="font-semibold text-slate-700 mr-1">住所:</span>{data.profile.address}</p>
+                                <div className="flex text-sm"><span className="w-28 font-bold text-slate-700">所在地</span><span className="text-slate-600">{data.profile.address}</span></div>
                             )}
                             {data.profile.education && (
-                                <p><span className="font-semibold text-slate-700 mr-1">最終学歴:</span>{data.profile.education}</p>
+                                <div className="flex text-sm"><span className="w-28 font-bold text-slate-700">最終学歴</span><span className="text-slate-600">{data.profile.education}</span></div>
                             )}
                             {data.profile.experienceYears && (
-                                <p><span className="font-semibold text-slate-700 mr-1">経験年数:</span>{data.profile.experienceYears}</p>
+                                <div className="flex text-sm"><span className="w-28 font-bold text-slate-700">経験年数</span><span className="text-slate-600">{data.profile.experienceYears}</span></div>
                             )}
                         </div>
                     </div>
@@ -54,10 +54,22 @@ export default function Preview({ data }: { data: ResumeData }) {
                                     <User size={20} />
                                     <span>Summary</span>
                                 </h2>
-                                <p className="text-sm leading-relaxed text-slate-600">
+                                <p className="text-sm leading-relaxed text-slate-600 whitespace-pre-wrap">
                                     {data.profile.summary}
                                 </p>
                             </section>
+
+                            {data.profile.pr && (
+                                <section>
+                                    <h2 className="text-lg font-bold flex items-center space-x-2 text-slate-800 mb-3">
+                                        <Star size={20} />
+                                        <span>Self PR</span>
+                                    </h2>
+                                    <div className="text-sm leading-relaxed text-slate-600 whitespace-pre-wrap">
+                                        {data.profile.pr}
+                                    </div>
+                                </section>
+                            )}
 
                             <section>
                                 <h2 className="text-lg font-bold flex items-center space-x-2 text-slate-800 mb-3">
@@ -69,11 +81,20 @@ export default function Preview({ data }: { data: ResumeData }) {
                                 </div>
                                 {/* スキル詳細タグ */}
                                 <div className="mt-4 flex flex-wrap gap-2">
-                                    {data.skills.map(s => (
-                                        <span key={s.subject} className="px-2 py-1 bg-slate-100 text-slate-600 text-xs rounded-md font-medium">
-                                            {s.subject}
-                                        </span>
-                                    ))}
+                                    {data.skills.map(s => {
+                                        let level = "初級";
+                                        let color = "bg-slate-100 text-slate-600";
+                                        if (s.A >= 75) { level = "上級"; color = "bg-blue-100 text-blue-700 font-bold border border-blue-200"; }
+                                        else if (s.A >= 50) { level = "中級"; color = "bg-green-50 text-green-700 border border-green-200"; }
+                                        else { color = "bg-gray-50 text-gray-600 border border-gray-200"; }
+
+                                        return (
+                                            <span key={s.subject} className={`px-2 py-1 text-xs rounded-md ${color} flex items-center space-x-1`}>
+                                                <span>{s.subject}</span>
+                                                <span className="opacity-70 text-[10px]">({level})</span>
+                                            </span>
+                                        );
+                                    })}
                                 </div>
                             </section>
 

@@ -12,6 +12,7 @@ export type Profile = {
   name: string;
   title: string;
   summary: string;
+  pr: string; // 自己PR（マネジメント・ビジネス貢献等）
   score: number;
   certifications: string[]; // 資格
   links: string[]; // ポートフォリオリンク
@@ -32,6 +33,7 @@ const initialData: ResumeData = {
     name: "",
     title: "",
     summary: "",
+    pr: "",
     score: 0,
     certifications: [],
     links: [],
@@ -104,14 +106,16 @@ export default function Home() {
 
           // ----- プロフィール情報（Step 10, 11等）のマージロジック -----
           let updatedSummary = prevData.profile.summary;
+          let updatedPr = prevData.profile.pr;
+
           if (step === 10 && result.profile?.achievements) {
-            // マネジメント系の実績を要約テキストに追記（プレビュー側で表示させるための一時措置）
+            // マネジメント系の実績を自己PRテキストに追記
             const mgmtText = result.profile.achievements.map((a: string) => `・${a}`).join('\n');
-            updatedSummary = updatedSummary ? `${updatedSummary}\n\n【マネジメント・リーダー経験】\n${mgmtText}` : `【マネジメント・リーダー経験】\n${mgmtText}`;
+            updatedPr = updatedPr ? `${updatedPr}\n\n【マネジメント・リーダー経験】\n${mgmtText}` : `【マネジメント・リーダー経験】\n${mgmtText}`;
           } else if (step === 11 && result.profile?.achievements) {
-            // ビジネス貢献系の実績を要約テキストに追記
+            // ビジネス貢献系の実績を自己PRテキストに追記
             const bizText = result.profile.achievements.map((a: string) => `・${a}`).join('\n');
-            updatedSummary = updatedSummary ? `${updatedSummary}\n\n【ビジネス・チームへの貢献】\n${bizText}` : `【ビジネス・チームへの貢献】\n${bizText}`;
+            updatedPr = updatedPr ? `${updatedPr}\n\n【ビジネス・チームへの貢献】\n${bizText}` : `【ビジネス・チームへの貢献】\n${bizText}`;
           } else if (result.profile?.summary && step !== 10 && step !== 11) {
             // 通常の職務要約（Step 2など）の場合
             updatedSummary = result.profile.summary;
@@ -122,6 +126,7 @@ export default function Home() {
               name: result.profile?.name || prevData.profile.name,
               title: result.profile?.title || prevData.profile.title,
               summary: updatedSummary,
+              pr: updatedPr,
               score: Math.min(100, prevData.profile.score + 25),
               certifications: result.profile?.certifications || prevData.profile.certifications,
               links: result.profile?.links || prevData.profile.links,
