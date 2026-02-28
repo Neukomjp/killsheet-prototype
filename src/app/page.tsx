@@ -32,7 +32,7 @@ export default function Home() {
   const [isExtracting, setIsExtracting] = useState(false);
 
   // 生成AI APIを呼び出してテキストを構造化する処理
-  const handleExtract = async (text: string) => {
+  const handleExtract = async (text: string, step: number) => {
     setIsExtracting(true);
 
     try {
@@ -40,7 +40,7 @@ export default function Home() {
       const response = await fetch('/api/extract', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text })
+        body: JSON.stringify({ text, step })
       });
 
       if (!response.ok) {
@@ -69,13 +69,15 @@ export default function Home() {
           projects: [...extractedProjects, ...prevData.projects],
         }));
 
-        // 成功した喜びを演出する紙吹雪エフェクト
-        confetti({
-          particleCount: 150,
-          spread: 80,
-          origin: { y: 0.6 },
-          colors: ["#3b82f6", "#60a5fa", "#93c5fd", "#f59e0b", "#10b981"]
-        });
+        // 成功した喜びを演出する紙吹雪エフェクト (最終ステップまたはプロジェクト追加時)
+        if (step === 3 || (result.projects && result.projects.length > 0)) {
+          confetti({
+            particleCount: 150,
+            spread: 80,
+            origin: { y: 0.6 },
+            colors: ["#3b82f6", "#60a5fa", "#93c5fd", "#f59e0b", "#10b981"]
+          });
+        }
       }
     } catch (error) {
       console.error("抽出エラー:", error);
