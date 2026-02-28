@@ -115,9 +115,8 @@ export default function Home() {
               education: result.profile?.education || prevData.profile.education,
               experienceYears: result.profile?.experienceYears || prevData.profile.experienceYears,
             },
-            skills: result.skills && result.skills.length > 0
-              ? result.skills.map((s: { subject: string; score: number }) => ({ subject: s.subject, A: s.score, fullMark: 100 }))
-              : prevData.skills,
+            // SkillsはStep4完了時(または既存データ)からのみ更新されるため、ここでは上書きしない
+            skills: prevData.skills,
             projects: updatedProjects,
           };
         });
@@ -151,6 +150,18 @@ export default function Home() {
     }));
   };
 
+  // Step 4 用のダイレクト更新処理（スキルの即時反映）
+  const handleDirectSkillsUpdate = (skillsData: { subject: string; score: number }[]) => {
+    setData(prevData => ({
+      ...prevData,
+      skills: skillsData.map(s => ({
+        subject: s.subject,
+        A: s.score,
+        fullMark: 100
+      }))
+    }));
+  };
+
   return (
     <main className="flex h-screen bg-gray-100 overflow-hidden text-slate-800">
       {/* 左側：エディタ領域 */}
@@ -160,6 +171,7 @@ export default function Home() {
           isExtracting={isExtracting}
           onExtract={handleExtract}
           onDirectUpdate={handleDirectUpdate}
+          onDirectSkillsUpdate={handleDirectSkillsUpdate}
         />
       </div>
 

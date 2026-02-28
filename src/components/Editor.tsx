@@ -10,9 +10,11 @@ interface EditorProps {
     onExtract: (text: string, step: number) => void;
     // Step 1でのダイレクト更新用コールバックを追加
     onDirectUpdate?: (profileData: Partial<ResumeData['profile']>) => void;
+    // Step 4（スキル年数入力完了時）のダイレクト更新コールバックを追加
+    onDirectSkillsUpdate?: (skillsData: { subject: string; score: number }[]) => void;
 }
 
-export default function Editor({ data, isExtracting, onExtract, onDirectUpdate }: EditorProps) {
+export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, onDirectSkillsUpdate }: EditorProps) {
     const [currentStep, setCurrentStep] = useState(1);
     const [inputs, setInputs] = useState<Record<number, string>>({});
 
@@ -26,13 +28,23 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate }
         education: data.profile.education || "",
     });
 
+    // Step 3, 4用のスキル選択・年数ステート
+    const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+    const [skillYears, setSkillYears] = useState<Record<string, number>>({});
+
+    // プリセットのスキル選択肢リスト
+    const presetSkills = [
+        "JavaScript / TypeScript", "Python", "Java", "Go", "Ruby", "PHP", "C#", "C / C++",
+        "React", "Vue.js", "Next.js", "Spring Boot", "Ruby on Rails", "Laravel", "Django",
+        "AWS", "GCP", "Azure", "Docker / Kubernetes", "Linux",
+        "MySQL / PostgreSQL", "MongoDB", "NoSQL",
+        "要件定義 / 設計", "チームマネジメント / テックリード"
+    ];
+
     const totalSteps = 11;
 
     const placeholders: Record<number, string> = {
-        1: "例：山田太郎",
-        2: "例：バックエンドエンジニア、テックリードなど",
-        3: "例：アーキテクチャ設計から実装まで一人称で完結できるのが強みです。後輩の育成やコードレビュー文化の推進にも貢献してきました。",
-        4: "例：Java(5年), Spring Boot(3年), AWS(EC2, RDS)(2年)",
+        2: "例：アーキテクチャ設計から実装まで一人称で完結できるのが強みです。後輩の育成やコードレビュー文化の推進にも貢献してきました。",
         5: "例：大手ECサイトの決済基盤システムのリプレイス",
         6: "例：2023年4月〜現在。5名チームのサブリーダーとして参画しました。",
         7: "例：言語はGo、DBはPostgreSQL、インフラはAWS ECSを使用しました。",
@@ -42,10 +54,10 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate }
     };
 
     const titles: Record<number, string> = {
-        1: "Step 1: お名前を教えてください。",
-        2: "Step 2: 現在のメインの職種は何ですか？",
-        3: "Step 3: エンジニアとしての「一番の強み・アピールポイント」を教えてください。",
-        4: "Step 4: 得意なスキル・技術は何ですか？（最大5つ）",
+        1: "Step 1: 基本情報を教えてください。",
+        2: "Step 2: エンジニアとしての「一番の強み・アピールポイント」を教えてください。",
+        3: "Step 3: 経験のあるスキル・技術を選択してください（複数可）",
+        4: "Step 4: 選択したスキルの「経験年数」を入力してください。",
         5: "Step 5: 一番アピールしたいプロジェクトは、何のシステムでしたか？（概要）",
         6: "Step 6: そのプロジェクトの「期間」と「あなたの役割」を教えてください。",
         7: "Step 7: そのプロジェクトで使用した「言語・フレームワーク・インフラ」は何でしたか？",
@@ -73,6 +85,34 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate }
         }
 
         const text = inputs[currentStep] || "";
+
+        // Step 3 (スキル選択) はAIを通さずに次へ
+        if (currentStep === 3) {
+            setCurrentStep(c => c + 1);
+            return;
+        }
+
+        // Step 4 (スキル年数) はAIを通さずにローカル処理で反映
+        if (currentStep === 4) {
+            if (onDirectSkillsUpdate) {
+                // 選ばれたスキルの年数からスコアを簡易算出して更新（例: 1年=30点, 2年=50点, 3年=70点, 5年=100点）
+                const skillsData = selectedSkills.map(skill => {
+                    const years = skillYears[skill] || 0;
+                    let score = 20; // 基礎点
+                    if (years >= 5) score = 100;
+                    else if (years >= 3) score = 75;
+                    else if (years >= 2) score = 55;
+                    else if (years >= 1) score = 35;
+
+                    return { subject: skill, score: Math.min(score, 100) };
+                }).slice(0, 5); // チャートの見栄え上、最大5つ程度に絞るかそのまま渡す
+
+                onDirectSkillsUpdate(skillsData);
+            }
+            setCurrentStep(c => c + 1);
+            return;
+        }
+
         if (text.trim() && currentStep !== 10) {
             onExtract(text, currentStep);
         }
@@ -225,6 +265,79 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate }
                                 <div className="flex items-center space-x-2">
                                     <span>次へ進む</span>
                                 </div>
+                            </button>
+                        </div>
+                    </div>
+                ) : currentStep === 3 ? (
+                    // Step 3: スキルチェックボックス一覧UI
+                    <div className="flex-1 flex flex-col space-y-4 overflow-y-auto pr-2 pb-4">
+                        <div className="grid grid-cols-2 gap-3 h-full content-start">
+                            {presetSkills.map(skill => (
+                                <label key={skill} className="flex items-center space-x-3 p-3 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-200 transition-colors has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500">
+                                    <input
+                                        type="checkbox"
+                                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                        checked={selectedSkills.includes(skill)}
+                                        onChange={(e) => {
+                                            if (e.target.checked) setSelectedSkills([...selectedSkills, skill]);
+                                            else setSelectedSkills(selectedSkills.filter(s => s !== skill));
+                                        }}
+                                    />
+                                    <span className="text-sm font-medium text-gray-700">{skill}</span>
+                                </label>
+                            ))}
+                        </div>
+                        <div className="flex space-x-3 pt-4 mt-auto">
+                            <button
+                                onClick={handlePrev}
+                                className="w-1/3 bg-white hover:bg-gray-50 text-gray-700 font-medium py-3 px-4 rounded-xl border border-gray-200 transition-colors"
+                            >
+                                戻る
+                            </button>
+                            <button
+                                onClick={handleNext}
+                                disabled={selectedSkills.length === 0}
+                                className="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                                <span>次へ（年数を入力する）</span>
+                            </button>
+                        </div>
+                    </div>
+                ) : currentStep === 4 ? (
+                    // Step 4: 選択したスキルの年数入力UI
+                    <div className="flex-1 flex flex-col space-y-4 overflow-y-auto pr-2 pb-4">
+                        <p className="text-sm text-gray-500 mb-2">Step 3で選んだ技術・スキルの経験年数を半角数字で入力してください。</p>
+                        <div className="flex flex-col space-y-3">
+                            {selectedSkills.map(skill => (
+                                <div key={skill} className="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg">
+                                    <span className="text-sm font-medium text-gray-700">{skill}</span>
+                                    <div className="flex items-center space-x-2">
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            step="0.5"
+                                            className="w-20 bg-gray-50 border border-gray-200 rounded-lg p-2 text-sm text-right focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+                                            placeholder="0"
+                                            value={skillYears[skill] || ""}
+                                            onChange={(e) => setSkillYears(prev => ({ ...prev, [skill]: parseFloat(e.target.value) || 0 }))}
+                                        />
+                                        <span className="text-sm text-gray-500">年</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="flex space-x-3 pt-4 mt-auto">
+                            <button
+                                onClick={handlePrev}
+                                className="w-1/3 bg-white hover:bg-gray-50 text-gray-700 font-medium py-3 px-4 rounded-xl border border-gray-200 transition-colors"
+                            >
+                                戻る
+                            </button>
+                            <button
+                                onClick={handleNext}
+                                className="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center transition-colors"
+                            >
+                                <span>次へ進む (即時反映) </span>
                             </button>
                         </div>
                     </div>
