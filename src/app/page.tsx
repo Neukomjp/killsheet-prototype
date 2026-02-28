@@ -195,6 +195,26 @@ export default function Home() {
     });
   };
 
+  // Step 14 用の最適化テキスト更新処理
+  const handleOptimizeProfile = (optimizedData: { summary: string; pr: string }) => {
+    setData(prevData => ({
+      ...prevData,
+      profile: {
+        ...prevData.profile,
+        summary: optimizedData.summary,
+        pr: optimizedData.pr
+      }
+    }));
+
+    // ターゲット最適化成功の喜びを演出する紙吹雪エフェクト
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+      colors: ["#ef4444", "#f97316", "#eab308"] // 情熱的な暖色系
+    });
+  };
+
   return (
     <main className="flex h-screen bg-gray-100 overflow-hidden text-slate-800">
       {/* 左側：エディタ領域 */}
@@ -206,6 +226,7 @@ export default function Home() {
           onDirectUpdate={handleDirectUpdate}
           onDirectSkillsUpdate={handleDirectSkillsUpdate}
           onImportAll={handleImportAll}
+          onOptimizeProfile={handleOptimizeProfile}
         />
       </div>
 

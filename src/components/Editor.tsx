@@ -14,12 +14,15 @@ interface EditorProps {
     onDirectSkillsUpdate?: (skillsData: { subject: string; score: number }[]) => void;
     // PDF等からの全文インポート反映用コールバックを追加
     onImportAll?: (importedData: ResumeData) => void;
+    // Step 14（最適化）結果反映用コールバックを追加
+    onOptimizeProfile?: (optimizedData: { summary: string; pr: string }) => void;
 }
 
-export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, onDirectSkillsUpdate, onImportAll }: EditorProps) {
+export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, onDirectSkillsUpdate, onImportAll, onOptimizeProfile }: EditorProps) {
     const [currentStep, setCurrentStep] = useState(1);
     const [inputs, setInputs] = useState<Record<number, string>>({});
     const [isImporting, setIsImporting] = useState(false);
+    const [isOptimizing, setIsOptimizing] = useState(false);
 
     // Step 1 専用の各フィールドのローカル状態
     const [step1Data, setStep1Data] = useState({
@@ -59,7 +62,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
         ]
     };
 
-    const totalSteps = 13;
+    const totalSteps = 14;
 
     const placeholders: Record<number, string> = {
         2: "例：アーキテクチャ設計から実装まで一人称で完結できるのが強みです。後輩の育成やコードレビュー文化の推進にも貢献してきました。",
@@ -70,7 +73,8 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
         9: "例：既存のレガシーコードの解読に苦労しましたが、テストを拡充しながらリファクタリングを完遂し、処理時間を30%削減しました。",
         10: "例：3名のバックエンドチームでプレイングマネージャーを務めました。若手のコードレビューや目標設定、1on1などを実施していました。",
         11: "例：リリース頻度を上げるため、GitHub Actionsを用いたCI/CDパイプラインを構築し、デプロイ工数を週4時間削減しました。",
-        13: "例：AWS認定ソリューションアーキテクト アソシエイトを持っています。GitHub: https://github.com/..."
+        13: "例：AWS認定ソリューションアーキテクト アソシエイトを持っています。GitHub: https://github.com/...",
+        14: "例：\n【必須スキル】\n- React, Next.jsを用いたフロントエンド開発経験（3年以上）\n- TypeScriptによる堅牢な型定義の経験\n\n【歓迎スキル】\n- バックエンドAPIの設計・開発経験\n- チームのリードやコードレビューの経験"
     };
 
     const titles: Record<number, string> = {
@@ -86,7 +90,8 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
         10: "Step 10: チームマネジメントや、後輩育成・技術リードの経験があれば教えてください。（メンバー数、スクラムマスター経験など）",
         11: "Step 11: 技術以外で、プロセス改善や売上向上等、ビジネス・チーム全体に与えたインパクトがあれば教えてください。",
         12: "Step 12: ほかに書きたいプロジェクトはありますか？",
-        13: "Step 13: 保有しているIT資格や、ポートフォリオ（GitHub等）のURLがあれば教えてください。"
+        13: "Step 13: 保有しているIT資格や、ポートフォリオ（GitHub等）のURLがあれば教えてください。",
+        14: "Step 14 (Optional): 応募したい求人票や案件の要件を入力してください。AIがレジュメを応募先向けに最適化します。"
     };
 
     const handleNext = () => {
@@ -135,9 +140,51 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
             return;
         }
 
-        if (text.trim() && currentStep !== 12) {
+        if (text.trim() && currentStep !== 12 && currentStep !== 14) {
             onExtract(text, currentStep);
         }
+
+        // Step 14 (応募先最適化) の処理
+        if (currentStep === 14) {
+            if (!text.trim()) {
+                // 何も入力せずに完了を押した場合はそのまま終了ステップへ
+                setCurrentStep(c => c + 1);
+                return;
+            }
+
+            const optimizeProfile = async () => {
+                setIsOptimizing(true);
+                try {
+                    const res = await fetch("/api/optimize", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            currentProfile: data.profile,
+                            targetJobDescription: text
+                        }),
+                    });
+
+                    if (!res.ok) throw new Error("Optimization failed");
+
+                    const result = await res.json();
+                    if (onOptimizeProfile) {
+                        onOptimizeProfile({
+                            summary: result.optimizedSummary,
+                            pr: result.optimizedPr
+                        });
+                    }
+                } catch (error) {
+                    console.error("Optimize Error:", error);
+                    alert("最適化処理に失敗しました。");
+                } finally {
+                    setIsOptimizing(false);
+                }
+            };
+            optimizeProfile();
+            // Stepを進めずに処理完了を待つ（または完了アクションとして状態変化）
+            return;
+        }
+
         if (currentStep < totalSteps) setCurrentStep(c => c + 1);
     };
 
@@ -483,18 +530,18 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                             </button>
                             <button
                                 onClick={handleNext}
-                                disabled={isExtracting || !(inputs[currentStep] || "").trim()}
+                                disabled={isExtracting || isOptimizing || (currentStep !== 14 && !(inputs[currentStep] || "").trim())}
                                 className="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                {isExtracting ? (
+                                {isExtracting || isOptimizing ? (
                                     <div className="flex items-center space-x-2">
                                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                        <span>構造化しています...</span>
+                                        <span>{isOptimizing ? "最適化しています..." : "構造化しています..."}</span>
                                     </div>
                                 ) : (
                                     <div className="flex items-center space-x-2">
                                         <Wand2 size={18} />
-                                        <span>{currentStep === totalSteps ? "完了（反映する）" : "次へ進む (AI自動反映)"}</span>
+                                        <span>{currentStep === totalSteps ? (inputs[14]?.trim() ? "AIで最適化して完了" : "このまま完了する") : "次へ進む (AI自動反映)"}</span>
                                     </div>
                                 )}
                             </button>
