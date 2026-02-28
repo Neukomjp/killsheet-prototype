@@ -13,8 +13,12 @@ export type Profile = {
   title: string;
   summary: string;
   score: number;
-  certifications: string[]; // 追加：資格
-  links: string[]; // 追加：ポートフォリオリンク
+  certifications: string[]; // 資格
+  links: string[]; // ポートフォリオリンク
+  age: string; // 星座/年齢/生年月日
+  address: string; // 住所
+  education: string; // 最終学歴
+  experienceYears: string; // 職務経験年数
 };
 
 export type ResumeData = {
@@ -31,6 +35,10 @@ const initialData: ResumeData = {
     score: 0,
     certifications: [],
     links: [],
+    age: "",
+    address: "",
+    education: "",
+    experienceYears: "",
   },
   skills: [],
   projects: []
@@ -102,6 +110,10 @@ export default function Home() {
               score: Math.min(100, prevData.profile.score + 25),
               certifications: result.profile?.certifications || prevData.profile.certifications,
               links: result.profile?.links || prevData.profile.links,
+              age: result.profile?.age || prevData.profile.age,
+              address: result.profile?.address || prevData.profile.address,
+              education: result.profile?.education || prevData.profile.education,
+              experienceYears: result.profile?.experienceYears || prevData.profile.experienceYears,
             },
             skills: result.skills && result.skills.length > 0
               ? result.skills.map((s: { subject: string; score: number }) => ({ subject: s.subject, A: s.score, fullMark: 100 }))
@@ -128,6 +140,17 @@ export default function Home() {
     }
   };
 
+  // Step 1 用のダイレクト更新処理（APIを経由しない即時反映）
+  const handleDirectUpdate = (profileData: Partial<Profile>) => {
+    setData(prevData => ({
+      ...prevData,
+      profile: {
+        ...prevData.profile,
+        ...profileData
+      }
+    }));
+  };
+
   return (
     <main className="flex h-screen bg-gray-100 overflow-hidden text-slate-800">
       {/* 左側：エディタ領域 */}
@@ -136,6 +159,7 @@ export default function Home() {
           data={data}
           isExtracting={isExtracting}
           onExtract={handleExtract}
+          onDirectUpdate={handleDirectUpdate}
         />
       </div>
 

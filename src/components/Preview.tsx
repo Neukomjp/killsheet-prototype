@@ -17,17 +17,34 @@ export default function Preview({ data }: { data: ResumeData }) {
             ) : (
                 <>
                     {/* Header */}
-                    <div className="border-b-2 border-slate-800 pb-6 flex justify-between items-end">
-                        <div>
-                            <h1 className="text-4xl font-black text-slate-900 mb-2">{data.profile.name}</h1>
-                            <p className="text-xl text-slate-600 font-medium">{data.profile.title}</p>
+                    <div className="border-b-2 border-slate-800 pb-5">
+                        <div className="flex justify-between items-start mb-3">
+                            <div>
+                                <h1 className="text-4xl font-black text-slate-900 mb-2">{data.profile.name}</h1>
+                                <p className="text-xl text-slate-600 font-medium">{data.profile.title}</p>
+                            </div>
+                            <div className="text-right text-sm text-slate-500">
+                                <p>生成日: {new Date().toLocaleDateString('ja-JP')}</p>
+                            </div>
                         </div>
-                        <div className="text-right text-sm text-slate-500">
-                            <p>生成日: {new Date().toLocaleDateString('ja-JP')}</p>
+                        {/* 拡充された基本情報一覧 */}
+                        <div className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-600 mt-2">
+                            {data.profile.age && (
+                                <p><span className="font-semibold text-slate-700 mr-1">生年月日/年齢:</span>{data.profile.age}</p>
+                            )}
+                            {data.profile.address && (
+                                <p><span className="font-semibold text-slate-700 mr-1">住所:</span>{data.profile.address}</p>
+                            )}
+                            {data.profile.education && (
+                                <p><span className="font-semibold text-slate-700 mr-1">最終学歴:</span>{data.profile.education}</p>
+                            )}
+                            {data.profile.experienceYears && (
+                                <p><span className="font-semibold text-slate-700 mr-1">経験年数:</span>{data.profile.experienceYears}</p>
+                            )}
                         </div>
                     </div>
 
-                    <div className="grid grid-cols-3 gap-8">
+                    <div className="grid grid-cols-3 gap-8 pt-2">
 
                         {/* Left Column (Radar & Profile) */}
                         <div className="col-span-1 space-y-8">
