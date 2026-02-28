@@ -1,0 +1,2 @@
+src/app/api/import/route.ts(4,8): error TS1192: Module '"C:/Users/zjkdf/Skillsheet/node_modules/pdf-parse/dist/pdf-parse/esm/index"' has no default export.
+src/app/api/import/route.ts(68,47): error TS2353: Object literal may only specify known properties, and 'score' does not exist in type '{ name: string; title: string; age: string; address: string; education: string; experienceYears: string; summary: string; pr: string; certifications: string[]; links: string[]; }'.

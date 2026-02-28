@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ResumeData } from "../app/page";
-import { Wand2, Printer, Trophy, BadgeCheck } from "lucide-react";
+import { Wand2, Printer, Trophy, BadgeCheck, UploadCloud } from "lucide-react";
 
 interface EditorProps {
     data: ResumeData;
@@ -12,11 +12,14 @@ interface EditorProps {
     onDirectUpdate?: (profileData: Partial<ResumeData['profile']>) => void;
     // Step 4（スキル年数入力完了時）のダイレクト更新コールバックを追加
     onDirectSkillsUpdate?: (skillsData: { subject: string; score: number }[]) => void;
+    // PDF等からの全文インポート反映用コールバックを追加
+    onImportAll?: (importedData: ResumeData) => void;
 }
 
-export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, onDirectSkillsUpdate }: EditorProps) {
+export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, onDirectSkillsUpdate, onImportAll }: EditorProps) {
     const [currentStep, setCurrentStep] = useState(1);
     const [inputs, setInputs] = useState<Record<number, string>>({});
+    const [isImporting, setIsImporting] = useState(false);
 
     // Step 1 専用の各フィールドのローカル状態
     const [step1Data, setStep1Data] = useState({
@@ -158,6 +161,45 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
         }
     };
 
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
+        if (file.type !== "application/pdf") {
+            alert("PDFファイルを選択してください。"); // とりあえずPDFのみ許容
+            return;
+        }
+
+        setIsImporting(true);
+        try {
+            const formData = new FormData();
+            formData.append("file", file);
+
+            const res = await fetch("/api/import", {
+                method: "POST",
+                body: formData,
+            });
+
+            if (!res.ok) throw new Error("Import failed");
+
+            const importedData: ResumeData = await res.json();
+
+            if (onImportAll) {
+                onImportAll(importedData);
+            }
+
+            // インポート成功時は、ウィザードを完了状態（あるいは最終ステップ）まで一気に進める
+            setCurrentStep(13);
+
+        } catch (error) {
+            console.error(error);
+            alert("ファイルのインポート・解析に失敗しました。");
+        } finally {
+            setIsImporting(false);
+            // reset file input
+            if (e.target) e.target.value = "";
+        }
+    };
+
     return (
         <div className="flex flex-col h-full p-6 space-y-6">
             <div className="space-y-1 block">
@@ -201,6 +243,39 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                 {currentStep === 1 ? (
                     // Step 1: 基本情報の複数フォームUI
                     <div className="flex-1 flex flex-col space-y-4 overflow-y-auto pr-2 pb-4">
+
+                        {/* PDFインポートエリア */}
+                        <div className="border-2 border-dashed border-blue-200 bg-blue-50/50 rounded-xl p-4 flex flex-col items-center justify-center text-center space-y-2 hover:bg-blue-50 transition-colors relative">
+                            {isImporting ? (
+                                <div className="flex flex-col items-center space-y-2 py-2">
+                                    <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+                                    <p className="text-xs font-bold text-blue-700">経歴書をAIが自動解析中...</p>
+                                </div>
+                            ) : (
+                                <>
+                                    <div className="p-2 bg-white rounded-full text-blue-500 shadow-sm">
+                                        <UploadCloud size={20} />
+                                    </div>
+                                    <p className="text-xs font-bold text-blue-800">
+                                        お手持ちの職務経歴書(PDF)を<br />アップロードして自動入力
+                                    </p>
+                                    <input
+                                        type="file"
+                                        accept="application/pdf"
+                                        onChange={handleFileUpload}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                                        title="PDFファイルを選択"
+                                    />
+                                </>
+                            )}
+                        </div>
+
+                        <div className="flex items-center">
+                            <div className="flex-1 border-t border-gray-200"></div>
+                            <span className="px-3 text-xs text-gray-400 font-medium">または 手動で入力</span>
+                            <div className="flex-1 border-t border-gray-200"></div>
+                        </div>
+
                         <div className="flex space-x-4">
                             <div className="flex-1 space-y-1">
                                 <label className="text-xs font-semibold text-gray-500">氏名</label>

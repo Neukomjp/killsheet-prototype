@@ -182,6 +182,19 @@ export default function Home() {
     }));
   };
 
+  // PDFファイル一括インポート用処理（APIからのJSON構造をそのままステートへ流し込む）
+  const handleImportAll = (importedData: ResumeData) => {
+    setData(importedData);
+
+    // インポート成功の喜びを演出する紙吹雪エフェクト
+    confetti({
+      particleCount: 200,
+      spread: 90,
+      origin: { y: 0.6 },
+      colors: ["#3b82f6", "#60a5fa", "#93c5fd", "#f59e0b", "#10b981", "#8b5cf6"]
+    });
+  };
+
   return (
     <main className="flex h-screen bg-gray-100 overflow-hidden text-slate-800">
       {/* 左側：エディタ領域 */}
@@ -192,6 +205,7 @@ export default function Home() {
           onExtract={handleExtract}
           onDirectUpdate={handleDirectUpdate}
           onDirectSkillsUpdate={handleDirectSkillsUpdate}
+          onImportAll={handleImportAll}
         />
       </div>
 
