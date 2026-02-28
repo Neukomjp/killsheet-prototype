@@ -32,14 +32,29 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
     const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
     const [skillYears, setSkillYears] = useState<Record<string, number>>({});
 
-    // プリセットのスキル選択肢リスト
-    const presetSkills = [
-        "JavaScript / TypeScript", "Python", "Java", "Go", "Ruby", "PHP", "C#", "C / C++",
-        "React", "Vue.js", "Next.js", "Spring Boot", "Ruby on Rails", "Laravel", "Django",
-        "AWS", "GCP", "Azure", "Docker / Kubernetes", "Linux",
-        "MySQL / PostgreSQL", "MongoDB", "NoSQL",
-        "要件定義 / 設計", "チームマネジメント / テックリード"
-    ];
+    // プリセットのスキル選択肢リスト（カテゴリ別に大幅拡充）
+    const skillCategories = {
+        "Frontend": [
+            "HTML / CSS", "JavaScript", "TypeScript", "React", "Next.js", "Vue.js", "Nuxt.js",
+            "Svelte", "Angular", "Tailwind CSS", "Sass / SCSS", "WebGL / Three.js"
+        ],
+        "Backend": [
+            "Node.js", "Python", "Java", "Go", "Ruby", "PHP", "C#", "C / C++", "Rust",
+            "Spring Boot", "Ruby on Rails", "Laravel", "Django", "FastAPI", "NestJS", "Express"
+        ],
+        "Database & Storage": [
+            "MySQL", "PostgreSQL", "Oracle DB", "SQL Server", "MongoDB", "DynamoDB",
+            "Redis", "Memcached", "Elasticsearch", "Firebase", "Supabase"
+        ],
+        "Infrastructure & Cloud": [
+            "AWS", "GCP", "Azure", "Docker", "Kubernetes", "Linux", "Nginx / Apache",
+            "Terraform", "Ansible", "CI/CD (GitHub Actions等)", "Vercel / Heroku"
+        ],
+        "Tools & Others": [
+            "Git / GitHub", "GraphQL", "REST API設計", "Microservices",
+            "アジャイル / Scrum", "要件定義 / 基本設計", "チームマネジメント / テックリード"
+        ]
+    };
 
     const totalSteps = 11;
 
@@ -269,24 +284,32 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                         </div>
                     </div>
                 ) : currentStep === 3 ? (
-                    // Step 3: スキルチェックボックス一覧UI
-                    <div className="flex-1 flex flex-col space-y-4 overflow-y-auto pr-2 pb-4">
-                        <div className="grid grid-cols-2 gap-3 h-full content-start">
-                            {presetSkills.map(skill => (
-                                <label key={skill} className="flex items-center space-x-3 p-3 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-200 transition-colors has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500">
-                                    <input
-                                        type="checkbox"
-                                        className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-                                        checked={selectedSkills.includes(skill)}
-                                        onChange={(e) => {
-                                            if (e.target.checked) setSelectedSkills([...selectedSkills, skill]);
-                                            else setSelectedSkills(selectedSkills.filter(s => s !== skill));
-                                        }}
-                                    />
-                                    <span className="text-sm font-medium text-gray-700">{skill}</span>
-                                </label>
-                            ))}
-                        </div>
+                    // Step 3: スキルチェックボックス一覧UI（カテゴリ別）
+                    <div className="flex-1 flex flex-col space-y-6 overflow-y-auto pr-2 pb-4">
+                        {Object.entries(skillCategories).map(([category, skills]) => (
+                            <div key={category} className="space-y-3">
+                                <h3 className="text-sm font-bold text-blue-800 border-b border-blue-100 pb-1 flex items-center">
+                                    <span className="w-1.5 h-4 bg-blue-500 rounded-full mr-2"></span>
+                                    {category}
+                                </h3>
+                                <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                                    {skills.map(skill => (
+                                        <label key={skill} className="flex items-center space-x-2 px-3 py-2 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-200 transition-colors has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500 shadow-sm">
+                                            <input
+                                                type="checkbox"
+                                                className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                                checked={selectedSkills.includes(skill)}
+                                                onChange={(e) => {
+                                                    if (e.target.checked) setSelectedSkills([...selectedSkills, skill]);
+                                                    else setSelectedSkills(selectedSkills.filter(s => s !== skill));
+                                                }}
+                                            />
+                                            <span className="text-xs font-medium text-gray-700 leading-tight">{skill}</span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
+                        ))}
                         <div className="flex space-x-3 pt-4 mt-auto">
                             <button
                                 onClick={handlePrev}
