@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { ResumeData } from "../app/page";
-import { Wand2, Printer, Trophy, BadgeCheck, UploadCloud, Download, Upload } from "lucide-react";
+import { Wand2, Printer, Trophy, BadgeCheck, UploadCloud, Download, Upload, CheckCircle } from "lucide-react";
 
 interface EditorProps {
     data: ResumeData;
@@ -179,6 +179,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                             pr: result.optimizedPr
                         });
                     }
+                    setTimeout(() => setCurrentStep(c => c + 1), 500); // 最適化成功後も完了画面へ進める
                 } catch (error) {
                     console.error("Optimize Error:", error);
                     alert("最適化処理に失敗しました。");
@@ -650,6 +651,24 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                                 )}
                             </button>
                         </div>
+                    </div>
+                ) : currentStep > totalSteps ? (
+                    // 全ステップ完了時のUI
+                    <div className="flex-1 flex flex-col justify-center items-center space-y-6 overflow-y-auto px-4 py-8 text-center animate-in fade-in duration-500">
+                        <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center text-green-500 mb-2 shadow-sm">
+                            <CheckCircle size={48} />
+                        </div>
+                        <h3 className="text-2xl font-bold text-gray-800">すべての入力が完了しました！🎉</h3>
+                        <p className="text-gray-600 leading-relaxed text-sm">
+                            右側のプレビュー画面から完成した職務経歴書を確認してください。<br />
+                            「AI面接対策アシスト」を使ったり、下部のメニューからPDF出力やデータの保存が可能です。
+                        </p>
+                        <button
+                            onClick={() => setCurrentStep(1)}
+                            className="mt-6 px-8 py-3 bg-white hover:bg-blue-50 text-blue-600 border border-blue-200 rounded-xl font-bold shadow-sm transition-all"
+                        >
+                            入力を最初から見直す
+                        </button>
                     </div>
                 ) : (
                     // 通常のテキストエリア入力UI
