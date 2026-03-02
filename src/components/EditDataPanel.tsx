@@ -33,6 +33,26 @@ export default function EditDataPanel({ data, onUpdate }: EditDataPanelProps) {
         setEditData({ ...editData, skills: newSkills });
     };
 
+    const handleUpdateSkillYears = (index: number, years: number) => {
+        const newSkills = [...editData.skills];
+        let score = 20;
+        if (years >= 5) score = 100;
+        else if (years >= 3) score = 75;
+        else if (years >= 2) score = 55;
+        else if (years >= 1) score = 35;
+
+        newSkills[index] = { ...newSkills[index], years, A: score };
+        setEditData({ ...editData, skills: newSkills });
+    };
+
+    const getYearsFromScore = (score: number) => {
+        if (score >= 100) return 5;
+        if (score >= 75) return 3;
+        if (score >= 55) return 2;
+        if (score >= 35) return 1;
+        return 0.5;
+    };
+
     const handleUpdateProject = (index: number, field: keyof Project, value: string) => {
         const newProjects = [...editData.projects];
         newProjects[index] = { ...newProjects[index], [field]: value };
@@ -124,15 +144,18 @@ export default function EditDataPanel({ data, onUpdate }: EditDataPanelProps) {
                                 className="flex-1 p-1 border border-transparent hover:border-gray-300 focus:border-blue-500 rounded text-sm outline-none"
                                 placeholder="スキル名"
                             />
-                            <input
-                                type="number"
-                                value={skill.A}
-                                onChange={(e) => handleUpdateSkill(idx, "A", Number(e.target.value))}
-                                min="0"
-                                max="100"
-                                className="w-16 p-1 border border-gray-300 rounded text-sm text-right outline-none focus:ring-2 focus:ring-blue-500"
-                                title="スコア (0-100)"
-                            />
+                            <div className="flex items-center space-x-1">
+                                <input
+                                    type="number"
+                                    value={skill.years !== undefined ? skill.years : getYearsFromScore(skill.A)}
+                                    onChange={(e) => handleUpdateSkillYears(idx, parseFloat(e.target.value) || 0)}
+                                    min="0"
+                                    step="0.5"
+                                    className="w-16 p-1 border border-gray-300 rounded text-sm text-right outline-none focus:ring-2 focus:ring-blue-500"
+                                    title="経験年数"
+                                />
+                                <span className="text-xs text-gray-500 font-medium">年</span>
+                            </div>
                         </div>
                     ))}
                 </div>

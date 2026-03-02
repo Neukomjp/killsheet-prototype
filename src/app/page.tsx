@@ -8,7 +8,7 @@ import InterviewPanel from "../components/InterviewPanel";
 import EditDataPanel from "../components/EditDataPanel";
 
 // Profile, Skills, Projects のデータ構造
-export type SkillNode = { subject: string; A: number; fullMark: number };
+export type SkillNode = { subject: string; A: number; fullMark: number; years?: number };
 export type Project = { id: string; period: string; role: string; tech: string[]; summary: string; achievements: string[] };
 export type Profile = {
   name: string;
