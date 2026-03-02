@@ -125,6 +125,7 @@ export default function InterviewPanel({ data, onUpdateInterviewData }: Intervie
                 </div>
             ) : (
                 <div className="bg-indigo-50 border border-indigo-100 border-dashed rounded-xl p-12 flex flex-col items-center justify-center text-center space-y-4">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src="https://api.dicebear.com/7.x/bottts/svg?seed=interview" alt="AI Bot" className="w-24 h-24 opacity-80 mix-blend-multiply" />
                     <h3 className="text-lg font-bold text-indigo-800">面接の準備はできていますか？</h3>
                     <p className="text-indigo-600 max-w-md text-sm">

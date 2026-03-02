@@ -18,9 +18,11 @@ interface EditorProps {
     onOptimizeProfile?: (optimizedData: { summary: string; pr: string }) => void;
     // URLパース（Step 13）結果反映用コールバックを追加
     onParseUrl?: (parsedData: { skills: string[]; prText: string; originUrl: string }) => void;
+    // テーマ変更用コールバックを追加
+    onThemeChange?: (theme: "modern" | "classic" | "creative") => void;
 }
 
-export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, onDirectSkillsUpdate, onImportAll, onOptimizeProfile, onParseUrl }: EditorProps) {
+export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, onDirectSkillsUpdate, onImportAll, onOptimizeProfile, onParseUrl, onThemeChange }: EditorProps) {
     const [currentStep, setCurrentStep] = useState(1);
     const [inputs, setInputs] = useState<Record<number, string>>({});
     const [isImporting, setIsImporting] = useState(false);
@@ -687,6 +689,25 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                         </div>
                     </div>
                 )}
+            </div>
+
+            {/* テーマ変更エリア */}
+            <div className="pt-2">
+                <p className="text-sm font-bold text-gray-700 mb-2">デザインテーマ</p>
+                <div className="flex space-x-2">
+                    {['modern', 'classic', 'creative'].map((t) => (
+                        <button
+                            key={t}
+                            onClick={() => onThemeChange && onThemeChange(t as "modern" | "classic" | "creative")}
+                            className={`flex-1 py-2 px-3 text-xs font-medium rounded-lg border transition-colors ${(data.theme || 'modern') === t
+                                ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-sm'
+                                : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'
+                                }`}
+                        >
+                            {t.charAt(0).toUpperCase() + t.slice(1)}
+                        </button>
+                    ))}
+                </div>
             </div>
 
             {/* アクションボタン群 */}

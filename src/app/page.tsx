@@ -33,6 +33,7 @@ export type ResumeData = {
   skills: SkillNode[];
   projects: Project[];
   interviewQnAs?: InterviewQnA[];
+  theme?: "modern" | "classic" | "creative";
 };
 
 const initialData: ResumeData = {
@@ -51,7 +52,8 @@ const initialData: ResumeData = {
   },
   skills: [],
   projects: [],
-  interviewQnAs: []
+  interviewQnAs: [],
+  theme: "modern",
 };
 
 export default function Home() {
@@ -147,6 +149,8 @@ export default function Home() {
             // SkillsはStep4完了時(または既存データ)からのみ更新されるため、ここでは上書きしない
             skills: prevData.skills,
             projects: updatedProjects,
+            interviewQnAs: prevData.interviewQnAs,
+            theme: prevData.theme,
           };
         });
 
@@ -202,6 +206,10 @@ export default function Home() {
       origin: { y: 0.6 },
       colors: ["#3b82f6", "#60a5fa", "#93c5fd", "#f59e0b", "#10b981", "#8b5cf6"]
     });
+  };
+
+  const handleThemeChange = (theme: "modern" | "classic" | "creative") => {
+    setData(prev => ({ ...prev, theme }));
   };
 
   // Step 14 用の最適化テキスト更新処理
@@ -288,6 +296,7 @@ export default function Home() {
           onImportAll={handleImportAll}
           onOptimizeProfile={handleOptimizeProfile}
           onParseUrl={handleParseUrl}
+          onThemeChange={handleThemeChange}
         />
       </div>
 
