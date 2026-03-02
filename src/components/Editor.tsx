@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import { ResumeData } from "../app/page";
 import { Wand2, Printer, Trophy, BadgeCheck, UploadCloud, Download, Upload, CheckCircle } from "lucide-react";
 
@@ -225,12 +225,28 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
 
         setIsImporting(true);
         try {
-            const formData = new FormData();
-            formData.append("file", file);
+            // pdfjs-dist の動的インポート (SSRでのエラー回避)
+            const pdfjsLib = await import('pdfjs-dist');
+            pdfjsLib.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
 
+            // クライアント(ブラウザ)側でPDFのテキストを抽出
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let extractedText = "";
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => ('str' in item ? item.str : "")).join(" ");
+                extractedText += pageText + "\n";
+            }
+
+            if (!extractedText.trim()) throw new Error("Could not extract text from PDF");
+
+            // 抽出した生テキストのみをJSONでVercel Serverless Functionへ投げる (4.5MB制限の回避とネイティブエラー防止)
             const res = await fetch("/api/import", {
                 method: "POST",
-                body: formData,
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ text: extractedText }),
             });
 
             if (!res.ok) throw new Error("Import failed");
