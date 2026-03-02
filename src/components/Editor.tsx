@@ -138,7 +138,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                     else if (years >= 1) score = 35;
 
                     return { subject: skill, score: Math.min(score, 100) };
-                }).slice(0, 5); // チャートの見栄え上、最大5つ程度に絞るかそのまま渡す
+                });
 
                 onDirectSkillsUpdate(skillsData);
             }

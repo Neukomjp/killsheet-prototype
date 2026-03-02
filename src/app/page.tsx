@@ -262,7 +262,8 @@ export default function Home() {
           ...prevData.profile,
           pr: newPr
         },
-        skills: [...prevData.skills, ...newSkills].slice(0, 10) // 最大でも10個程度に制限してチャートを破綻させない
+        // 新規スキルを末尾に追加（重複を防止＋全件表示）
+        skills: [...prevData.skills, ...newSkills],
       };
     });
 
