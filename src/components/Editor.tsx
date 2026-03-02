@@ -634,7 +634,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                             </button>
                             <button
                                 onClick={handleNext}
-                                disabled={isExtracting || isParsingUrl || !(inputs[13] || "").trim()}
+                                disabled={isExtracting || isParsingUrl}
                                 className="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isExtracting ? (
@@ -645,7 +645,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                                 ) : (
                                     <div className="flex items-center space-x-2">
                                         <Wand2 size={18} />
-                                        <span>次へ進む (AI自動反映)</span>
+                                        <span>{(inputs[13] || "").trim() ? "次へ進む (AI自動反映)" : "入力をスキップして次へ"}</span>
                                     </div>
                                 )}
                             </button>
@@ -671,7 +671,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                             </button>
                             <button
                                 onClick={handleNext}
-                                disabled={isExtracting || isOptimizing || (currentStep !== 14 && !(inputs[currentStep] || "").trim())}
+                                disabled={isExtracting || isOptimizing}
                                 className="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-xl flex items-center justify-center transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 {isExtracting || isOptimizing ? (
@@ -682,7 +682,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                                 ) : (
                                     <div className="flex items-center space-x-2">
                                         <Wand2 size={18} />
-                                        <span>{currentStep === totalSteps ? (inputs[14]?.trim() ? "AIで最適化して完了" : "このまま完了する") : "次へ進む (AI自動反映)"}</span>
+                                        <span>{currentStep === totalSteps ? ((inputs[14] || "").trim() ? "AIで最適化して完了" : "入力をスキップして完了") : ((inputs[currentStep] || "").trim() ? "次へ進む (AI自動反映)" : "入力をスキップして次へ")}</span>
                                     </div>
                                 )}
                             </button>
