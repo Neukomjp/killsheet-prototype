@@ -4,6 +4,7 @@ import { useState } from "react";
 import confetti from "canvas-confetti";
 import Editor from "../components/Editor";
 import Preview from "../components/Preview";
+import InterviewPanel from "../components/InterviewPanel";
 
 // Profile, Skills, Projects のデータ構造
 export type SkillNode = { subject: string; A: number; fullMark: number };
@@ -22,10 +23,16 @@ export type Profile = {
   experienceYears: string; // 職務経験年数
 };
 
+export type InterviewQnA = {
+  question: string;
+  advice: string;
+};
+
 export type ResumeData = {
   profile: Profile;
   skills: SkillNode[];
   projects: Project[];
+  interviewQnAs?: InterviewQnA[];
 };
 
 const initialData: ResumeData = {
@@ -43,12 +50,14 @@ const initialData: ResumeData = {
     experienceYears: "",
   },
   skills: [],
-  projects: []
+  projects: [],
+  interviewQnAs: []
 };
 
 export default function Home() {
   const [data, setData] = useState<ResumeData>(initialData);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [activeTab, setActiveTab] = useState<"preview" | "interview">("preview");
 
   // 生成AI APIを呼び出してテキストを構造化する処理
   const handleExtract = async (text: string, step: number) => {
@@ -258,8 +267,16 @@ export default function Home() {
     });
   };
 
+  // 面接対策（InterviewQnA）の更新処理
+  const handleUpdateInterviewData = (qnAs: InterviewQnA[]) => {
+    setData(prevData => ({
+      ...prevData,
+      interviewQnAs: qnAs
+    }));
+  };
+
   return (
-    <main className="flex h-screen bg-gray-100 overflow-hidden text-slate-800">
+    <main className="flex h-screen print:h-auto bg-gray-100 overflow-hidden print:overflow-visible text-slate-800 print:block">
       {/* 左側：エディタ領域 */}
       <div className="w-1/3 min-w-[400px] h-full overflow-y-auto bg-white border-r border-gray-200 shadow-sm z-10 print:hidden">
         <Editor
@@ -275,9 +292,38 @@ export default function Home() {
       </div>
 
       {/* 右側：プレビュー領域 */}
-      <div className="flex-1 h-full overflow-y-auto bg-gray-100 p-8 flex justify-center print:p-0 print:bg-white">
-        <div id="preview-area" className="w-[210mm] min-h-[297mm] bg-white shadow-xl max-w-full print:shadow-none print:w-[210mm] print:h-[297mm]">
-          <Preview data={data} />
+      <div className="flex-1 h-full print:h-auto flex flex-col overflow-hidden print:overflow-visible bg-gray-100 print:bg-white print:block">
+
+        {/* タブナビゲーション */}
+        <div className="bg-white border-b border-gray-200 px-8 pt-4 flex space-x-6 shrink-0 print:hidden shadow-sm z-10">
+          <button
+            onClick={() => setActiveTab("preview")}
+            className={`pb-3 px-2 text-sm font-bold border-b-2 transition-colors ${activeTab === "preview" ? "border-blue-600 text-blue-700" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"}`}
+          >
+            📄 経歴書プレビュー
+          </button>
+          <button
+            onClick={() => setActiveTab("interview")}
+            className={`pb-3 px-2 text-sm font-bold border-b-2 transition-colors ${activeTab === "interview" ? "border-indigo-600 text-indigo-700" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"}`}
+          >
+            🎤 AI面接対策
+          </button>
+        </div>
+
+        {/* プレビュービューア部分 */}
+        <div className="flex-1 overflow-y-auto print:overflow-visible p-8 flex justify-center items-start print:p-0 print:block">
+          {activeTab === "preview" ? (
+            <div id="preview-area" className="w-[210mm] min-h-[297mm] bg-white shadow-xl max-w-full print:shadow-none print:w-full print:min-h-0 print:h-auto">
+              <Preview data={data} />
+            </div>
+          ) : (
+            <div className="w-full max-w-4xl pt-4">
+              <InterviewPanel
+                data={data}
+                onUpdateInterviewData={handleUpdateInterviewData}
+              />
+            </div>
+          )}
         </div>
       </div>
     </main>

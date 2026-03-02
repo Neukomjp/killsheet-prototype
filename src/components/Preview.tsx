@@ -8,7 +8,7 @@ export default function Preview({ data }: { data: ResumeData }) {
     const isEmpty = !data.profile.name && data.projects.length === 0;
 
     return (
-        <div className="w-full h-full p-12 flex flex-col space-y-8 text-gray-800 print-exact relative">
+        <div className="w-full min-h-full p-12 flex flex-col space-y-8 text-gray-800 print-exact relative">
             {isEmpty ? (
                 <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-300 space-y-4">
                     <p className="text-xl font-bold tracking-widest">NO DATA</p>
@@ -49,7 +49,7 @@ export default function Preview({ data }: { data: ResumeData }) {
                         {/* Left Column (Radar & Profile) */}
                         <div className="col-span-1 space-y-8">
 
-                            <section>
+                            <section className="break-inside-avoid">
                                 <h2 className="text-lg font-bold flex items-center space-x-2 text-slate-800 mb-3">
                                     <User size={20} />
                                     <span>Summary</span>
@@ -60,7 +60,7 @@ export default function Preview({ data }: { data: ResumeData }) {
                             </section>
 
                             {data.profile.pr && (
-                                <section>
+                                <section className="break-inside-avoid">
                                     <h2 className="text-lg font-bold flex items-center space-x-2 text-slate-800 mb-3">
                                         <Star size={20} />
                                         <span>Self PR</span>
@@ -71,7 +71,7 @@ export default function Preview({ data }: { data: ResumeData }) {
                                 </section>
                             )}
 
-                            <section>
+                            <section className="break-inside-avoid">
                                 <h2 className="text-lg font-bold flex items-center space-x-2 text-slate-800 mb-3">
                                     <Award size={20} />
                                     <span>Skill Balance</span>
@@ -105,7 +105,7 @@ export default function Preview({ data }: { data: ResumeData }) {
                                         <GraduationCap size={20} />
                                         <span>Certifications</span>
                                     </h2>
-                                    <ul className="list-disc list-inside space-y-1 text-sm text-slate-600">
+                                    <ul className="list-disc ml-4 space-y-1 text-sm text-slate-600">
                                         {data.profile.certifications.map((cert, i) => (
                                             <li key={i}>{cert}</li>
                                         ))}
@@ -143,7 +143,7 @@ export default function Preview({ data }: { data: ResumeData }) {
 
                                 <div className="space-y-8">
                                     {data.projects.map((project) => (
-                                        <div key={project.id} className="relative pl-4 border-l-2 border-slate-200 pb-2">
+                                        <div key={project.id} className="relative pl-4 border-l-2 border-slate-200 pb-2 break-inside-avoid">
                                             <div className="absolute w-3 h-3 bg-slate-800 rounded-full -left-[7px] top-1"></div>
 
                                             <div className="mb-1 text-sm text-slate-500 font-medium uppercase tracking-wider">
@@ -161,13 +161,13 @@ export default function Preview({ data }: { data: ResumeData }) {
                                                 ))}
                                             </div>
 
-                                            <p className="text-sm text-slate-700 mb-3 leading-relaxed">
+                                            <p className="text-sm text-slate-700 mb-3 leading-relaxed whitespace-pre-wrap break-words">
                                                 {project.summary}
                                             </p>
 
-                                            <ul className="list-disc list-inside space-y-1 text-sm text-slate-600">
+                                            <ul className="list-disc ml-5 space-y-1.5 text-sm text-slate-600">
                                                 {project.achievements.map((item, i) => (
-                                                    <li key={i} className="leading-snug">{item}</li>
+                                                    <li key={i} className="leading-relaxed pl-1">{item}</li>
                                                 ))}
                                             </ul>
                                         </div>
