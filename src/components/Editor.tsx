@@ -360,7 +360,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
 
                 {currentStep === 1 ? (
                     // Step 1: 基本情報の複数フォームUI
-                    <div className="flex-1 flex flex-col space-y-4 overflow-y-auto pr-2 pb-4">
+                    <div className="flex-1 flex flex-col space-y-4 overflow-y-auto px-1 pb-2">
 
                         {/* PDFインポートエリア */}
                         <div className="border-2 border-dashed border-blue-200 bg-blue-50/50 rounded-xl p-4 flex flex-col items-center justify-center text-center space-y-2 hover:bg-blue-50 transition-colors relative">
@@ -483,7 +483,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                     </div>
                 ) : currentStep === 3 ? (
                     // Step 3: スキルチェックボックス一覧UI（カテゴリ別）
-                    <div className="flex-1 flex flex-col space-y-6 overflow-y-auto pr-2 pb-4">
+                    <div className="flex-1 flex flex-col space-y-6 overflow-y-auto px-1 pb-2">
                         {Object.entries(skillCategories).map(([category, skills]) => (
                             <div key={category} className="space-y-3">
                                 <h3 className="text-sm font-bold text-blue-800 border-b border-blue-100 pb-1 flex items-center">
@@ -526,7 +526,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                     </div>
                 ) : currentStep === 4 ? (
                     // Step 4: 選択したスキルの年数入力UI
-                    <div className="flex-1 flex flex-col space-y-4 overflow-y-auto pr-2 pb-4">
+                    <div className="flex-1 flex flex-col space-y-4 overflow-y-auto px-1 pb-2">
                         <p className="text-sm text-gray-500 mb-2">Step 3で選んだ技術・スキルの経験年数を半角数字で入力してください。</p>
                         <div className="flex flex-col space-y-3">
                             {selectedSkills.map(skill => (
@@ -583,7 +583,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                     </div>
                 ) : currentStep === 13 ? (
                     // Step 13: 資格・リンク + 外部URLパースUI
-                    <div className="flex-1 flex flex-col space-y-4">
+                    <div className="flex-1 flex flex-col space-y-4 overflow-y-auto px-1 pb-2">
                         <div className="space-y-2 bg-blue-50/50 border border-blue-100 rounded-xl p-4 mb-2">
                             <label className="text-xs font-bold text-blue-800 flex items-center">
                                 <Wand2 size={14} className="mr-1" />
@@ -651,7 +651,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                     </div>
                 ) : (
                     // 通常のテキストエリア入力UI
-                    <>
+                    <div className="flex-1 flex flex-col space-y-4 overflow-y-auto px-1 pb-2">
                         <textarea
                             className="flex-1 w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none leading-relaxed"
                             placeholder={placeholders[currentStep]}
@@ -659,7 +659,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                             onChange={(e) => setInputs(prev => ({ ...prev, [currentStep]: e.target.value }))}
                         />
 
-                        <div className="flex space-x-3 pt-2">
+                        <div className="flex space-x-3 pt-2 mt-auto">
                             <button
                                 onClick={handlePrev}
                                 disabled={currentStep === 1 || isExtracting}
@@ -685,7 +685,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                                 )}
                             </button>
                         </div>
-                    </>
+                    </div>
                 )}
             </div>
 
