@@ -5,6 +5,7 @@ import confetti from "canvas-confetti";
 import Editor from "../components/Editor";
 import Preview from "../components/Preview";
 import InterviewPanel from "../components/InterviewPanel";
+import EditDataPanel from "../components/EditDataPanel";
 
 // Profile, Skills, Projects のデータ構造
 export type SkillNode = { subject: string; A: number; fullMark: number };
@@ -59,7 +60,7 @@ const initialData: ResumeData = {
 export default function Home() {
   const [data, setData] = useState<ResumeData>(initialData);
   const [isExtracting, setIsExtracting] = useState(false);
-  const [activeTab, setActiveTab] = useState<"preview" | "interview">("preview");
+  const [activeTab, setActiveTab] = useState<"preview" | "interview" | "edit">("preview");
 
   // 生成AI APIを呼び出してテキストを構造化する処理
   const handleExtract = async (text: string, step: number) => {
@@ -313,6 +314,12 @@ export default function Home() {
             📄 経歴書プレビュー
           </button>
           <button
+            onClick={() => setActiveTab("edit")}
+            className={`pb-3 px-2 text-sm font-bold border-b-2 transition-colors ${activeTab === "edit" ? "border-green-600 text-green-700" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"}`}
+          >
+            ✏️ 手動編集
+          </button>
+          <button
             onClick={() => setActiveTab("interview")}
             className={`pb-3 px-2 text-sm font-bold border-b-2 transition-colors ${activeTab === "interview" ? "border-indigo-600 text-indigo-700" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"}`}
           >
@@ -325,6 +332,13 @@ export default function Home() {
           {activeTab === "preview" ? (
             <div id="preview-area" className="w-[210mm] min-h-[297mm] bg-white shadow-xl max-w-full print:shadow-none print:w-full print:min-h-0 print:h-auto">
               <Preview data={data} />
+            </div>
+          ) : activeTab === "edit" ? (
+            <div className="w-full max-w-4xl pt-4">
+              <EditDataPanel
+                data={data}
+                onUpdate={(newData) => setData(newData)}
+              />
             </div>
           ) : (
             <div className="w-full max-w-4xl pt-4">
