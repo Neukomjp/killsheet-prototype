@@ -17,6 +17,9 @@ const InterviewPrompt = `
 - 回答アドバイス（advice）は、「どういったエピソードを交えて話すと評価が上がるか」「どの強みをアピールすべきか」を指南すること。
 `;
 
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request) {
     try {
         const body = await req.json();

@@ -2,6 +2,10 @@ import { generateObject } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 
+// Vercel Serverless Functions のタイムアウトを延長
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
+
 // POSTリクエストを受け取り、テキストからプロジェクト情報を構造化して返すエンドポイント
 export async function POST(req: Request) {
     try {

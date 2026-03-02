@@ -3,6 +3,9 @@ import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
 import * as cheerio from 'cheerio';
 
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request) {
     try {
         const { url } = await req.json();

@@ -4,6 +4,10 @@ import { z } from 'zod';
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const pdfParse = require('pdf-parse');
 
+// Vercel Serverless Functions のタイムアウトを延長（デフォルトから最大60秒に変更）
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: Request) {
     try {
         const formData = await req.formData();
