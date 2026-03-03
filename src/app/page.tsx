@@ -61,6 +61,7 @@ export default function Home() {
   const [data, setData] = useState<ResumeData>(initialData);
   const [isExtracting, setIsExtracting] = useState(false);
   const [activeTab, setActiveTab] = useState<"preview" | "interview" | "edit">("preview");
+  const [mobileView, setMobileView] = useState<"editor" | "preview">("editor");
 
   // 生成AI APIを呼び出してテキストを構造化する処理
   const handleExtract = async (text: string, step: number) => {
@@ -286,9 +287,9 @@ export default function Home() {
   };
 
   return (
-    <main className="flex h-screen print:h-auto bg-gray-100 overflow-hidden print:overflow-visible text-slate-800 print:block">
+    <main className="flex flex-col md:flex-row h-screen print:h-auto bg-gray-100 overflow-hidden print:overflow-visible text-slate-800 print:block">
       {/* 左側：エディタ領域 */}
-      <div className="w-1/3 min-w-[400px] h-full overflow-y-auto bg-white border-r border-gray-200 shadow-sm z-10 print:hidden">
+      <div className={`w-full md:w-1/3 min-w-0 md:min-w-[400px] h-full overflow-y-auto bg-white md:border-r border-gray-200 shadow-sm z-10 print:hidden ${mobileView === 'preview' ? 'hidden md:block' : 'block'}`}>
         <Editor
           data={data}
           isExtracting={isExtracting}
@@ -303,10 +304,10 @@ export default function Home() {
       </div>
 
       {/* 右側：プレビュー領域 */}
-      <div className="flex-1 h-full print:h-auto flex flex-col overflow-hidden print:overflow-visible bg-gray-100 print:bg-white print:block">
+      <div className={`flex-1 w-full h-full print:h-auto flex-col overflow-hidden print:overflow-visible bg-gray-100 print:bg-white print:block pb-14 md:pb-0 ${mobileView === 'editor' ? 'hidden md:flex' : 'flex'}`}>
 
         {/* タブナビゲーション */}
-        <div className="bg-white border-b border-gray-200 px-8 pt-4 flex space-x-6 shrink-0 print:hidden shadow-sm z-10">
+        <div className="bg-white border-b border-gray-200 px-4 md:px-8 pt-4 flex space-x-4 md:space-x-6 shrink-0 print:hidden shadow-sm z-10 overflow-x-auto whitespace-nowrap">
           <button
             onClick={() => setActiveTab("preview")}
             className={`pb-3 px-2 text-sm font-bold border-b-2 transition-colors ${activeTab === "preview" ? "border-blue-600 text-blue-700" : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"}`}
@@ -328,10 +329,12 @@ export default function Home() {
         </div>
 
         {/* プレビュービューア部分 */}
-        <div className="flex-1 overflow-y-auto print:overflow-visible p-8 flex justify-center items-start print:p-0 print:block">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden print:overflow-visible p-4 md:p-8 flex justify-center items-start print:p-0 print:block">
           {activeTab === "preview" ? (
-            <div id="preview-area" className="w-[210mm] min-h-[297mm] bg-white shadow-xl max-w-full print:shadow-none print:w-full print:min-h-0 print:h-auto">
-              <Preview data={data} />
+            <div className="mobile-preview-scaler mx-auto origin-top transition-transform">
+              <div id="preview-area" className="w-[210mm] min-h-[297mm] bg-white shadow-xl print:shadow-none print:w-full print:min-h-0 print:h-auto">
+                <Preview data={data} />
+              </div>
             </div>
           ) : activeTab === "edit" ? (
             <div className="w-full max-w-4xl pt-4">
@@ -349,6 +352,22 @@ export default function Home() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* モバイル専用：ボトムナビゲーション */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50">
+        <button
+          onClick={() => setMobileView("editor")}
+          className={`flex-1 py-3 text-sm font-bold flex justify-center items-center transition-colors ${mobileView === "editor" ? "text-blue-600 border-t-2 border-blue-600 bg-blue-50" : "text-gray-500 hover:bg-gray-50"}`}
+        >
+          ✍️ 入力・編集
+        </button>
+        <button
+          onClick={() => setMobileView("preview")}
+          className={`flex-1 py-3 text-sm font-bold flex justify-center items-center transition-colors ${mobileView === "preview" ? "text-blue-600 border-t-2 border-blue-600 bg-blue-50" : "text-gray-500 hover:bg-gray-50"}`}
+        >
+          📄 プレビュー
+        </button>
       </div>
     </main>
   );

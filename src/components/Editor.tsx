@@ -422,7 +422,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                             <div className="flex-1 border-t border-gray-200"></div>
                         </div>
 
-                        <div className="flex space-x-4">
+                        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                             <div className="flex-1 space-y-1">
                                 <label className="text-xs font-semibold text-gray-500">氏名</label>
                                 <input
@@ -445,7 +445,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                             </div>
                         </div>
 
-                        <div className="flex space-x-4">
+                        <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
                             <div className="flex-1 space-y-1">
                                 <label className="text-xs font-semibold text-gray-500">現在の職種</label>
                                 <input
@@ -518,7 +518,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                                     <span className="w-1.5 h-4 bg-blue-500 rounded-full mr-2"></span>
                                     {category}
                                 </h3>
-                                <div className="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                                     {skills.map(skill => (
                                         <label key={skill} className="flex items-center space-x-2 px-3 py-2 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-200 transition-colors has-[:checked]:bg-blue-50 has-[:checked]:border-blue-500 shadow-sm">
                                             <input
@@ -594,7 +594,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                     // Step 12: 複数プロジェクト分岐用UI
                     <div className="flex-1 flex flex-col justify-center items-center space-y-4 bg-gray-50 border border-gray-200 rounded-xl p-6">
                         <p className="text-gray-600 font-medium">これまでの入力が1件のプロジェクトとして追加されています。</p>
-                        <div className="flex space-x-4 w-full justify-center">
+                        <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 w-full justify-center">
                             <button
                                 onClick={() => handleLoop(true)}
                                 className="px-6 py-4 bg-white hover:bg-gray-50 text-blue-600 border border-blue-200 rounded-xl font-bold shadow-sm transition-all"
@@ -617,7 +617,7 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                                 <Wand2 size={14} className="mr-1" />
                                 外部URLから実績を自動読み込み
                             </label>
-                            <div className="flex space-x-2">
+                            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                                 <input
                                     type="url"
                                     placeholder="GitHub, Qiita, Zenn などのURL"
@@ -766,11 +766,12 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                 <div className="flex space-x-3">
                     <button
                         onClick={handleExportJson}
-                        className="flex-1 bg-white hover:bg-gray-50 text-gray-600 text-sm font-medium py-2 px-4 rounded-lg border border-gray-200 flex items-center justify-center space-x-2 transition-colors"
+                        className="flex-1 bg-white hover:bg-gray-50 text-gray-600 text-sm font-medium py-2 px-2 sm:px-4 rounded-lg border border-gray-200 flex items-center justify-center space-x-2 transition-colors"
                         title="現在のデータをJSONファイルとしてPCに保存します"
                     >
                         <Download size={16} />
-                        <span>JSON保存</span>
+                        <span className="hidden sm:inline">JSON保存</span>
+                        <span className="sm:hidden">保存</span>
                     </button>
                     <div className="flex-1 relative">
                         <input
@@ -781,10 +782,11 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                             title="保存したJSONファイルを読み込んで復元します"
                         />
                         <button
-                            className="w-full bg-white hover:bg-gray-50 text-gray-600 text-sm font-medium py-2 px-4 rounded-lg border border-gray-200 flex items-center justify-center space-x-2 transition-colors pointer-events-none"
+                            className="w-full bg-white hover:bg-gray-50 text-gray-600 text-sm font-medium py-2 px-2 sm:px-4 rounded-lg border border-gray-200 flex items-center justify-center space-x-2 transition-colors pointer-events-none"
                         >
                             <Upload size={16} />
-                            <span>JSON読込</span>
+                            <span className="hidden sm:inline">JSON読込</span>
+                            <span className="sm:hidden">読込</span>
                         </button>
                     </div>
                 </div>

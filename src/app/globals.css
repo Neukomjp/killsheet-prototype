@@ -15,3 +15,25 @@
     margin: 0;
   }
 }
+
+/* スマホ等で固定幅A4プレビューをはみ出さずに表示するための縮小調整 */
+@media (max-width: 480px) {
+  .mobile-preview-scaler {
+    zoom: 0.44;
+    /* iPhone等の細い画面向け */
+  }
+}
+
+@media (min-width: 481px) and (max-width: 767px) {
+  .mobile-preview-scaler {
+    zoom: 0.6;
+    /* 少し大きめの画面向け */
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .mobile-preview-scaler {
+    zoom: 0.8;
+    /* タブレットや分割ビュー向け */
+  }
+}

@@ -65,7 +65,7 @@ export default function EditDataPanel({ data, onUpdate }: EditDataPanelProps) {
     };
 
     return (
-        <div className="w-full max-w-4xl max-h-full overflow-y-auto bg-white border border-gray-200 shadow-sm rounded-xl p-6 m-4 flex flex-col space-y-8 relative">
+        <div className="w-full max-w-4xl max-h-full overflow-y-auto bg-white border border-gray-200 shadow-sm rounded-xl p-4 sm:p-6 mb-16 md:m-4 flex flex-col space-y-8 relative">
             <div className="flex items-center justify-between border-b pb-4 sticky top-0 bg-white z-10">
                 <h2 className="text-xl font-bold text-gray-800 flex items-center">
                     <span className="mr-2">✏️</span> 手動編集モード
@@ -86,7 +86,7 @@ export default function EditDataPanel({ data, onUpdate }: EditDataPanelProps) {
             {/* Profile Section */}
             <section className="space-y-4">
                 <h3 className="font-bold text-gray-700 bg-gray-50 p-2 rounded-md border border-gray-200">基本情報・職務要約・自己PR</h3>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
                         <label className="text-xs font-semibold text-gray-500">氏名</label>
                         <input
@@ -167,8 +167,8 @@ export default function EditDataPanel({ data, onUpdate }: EditDataPanelProps) {
                 {editData.projects.length === 0 && <p className="text-gray-400 text-sm">プロジェクトデータがありません</p>}
                 {editData.projects.map((project, idx) => (
                     <div key={project.id || idx} className="border border-gray-200 rounded-lg p-4 space-y-3 bg-gray-50/50">
-                        <div className="flex space-x-3">
-                            <div className="w-1/3 space-y-1">
+                        <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3">
+                            <div className="w-full sm:w-1/3 space-y-1">
                                 <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">期間</label>
                                 <input
                                     type="text"
@@ -178,7 +178,7 @@ export default function EditDataPanel({ data, onUpdate }: EditDataPanelProps) {
                                     placeholder="2022/04 - 現在"
                                 />
                             </div>
-                            <div className="w-2/3 space-y-1">
+                            <div className="w-full sm:w-2/3 space-y-1">
                                 <label className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">役割・ポジション</label>
                                 <input
                                     type="text"
