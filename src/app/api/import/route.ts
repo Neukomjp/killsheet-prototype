@@ -38,7 +38,7 @@ export async function POST(req: Request) {
             profile: z.object({
                 name: z.string().describe("氏名"),
                 title: z.string().describe("現在のメイン職種（例: フロントエンドエンジニア）"),
-                age: z.string().describe("生年月日や年齢（不明な場合は空文字）"),
+                age: z.string().describe("生年月日と年齢の両方を網羅するように記載してください（例: '1990年1月1日 (33歳)' またはテキストにある通りの表記）"),
                 address: z.string().describe("住所や居住地（不明な場合は空文字）"),
                 education: z.string().describe("最終学歴（不明な場合は空文字）"),
                 experienceYears: z.string().describe("エンジニアとしての経験年数（不明な場合は空文字）"),
@@ -58,11 +58,11 @@ export async function POST(req: Request) {
                 role: z.string().describe("担当した役割やチーム規模 (例: 5名体制のテックリード)"),
                 summary: z.string().describe("プロジェクトの概要と担当フェーズ（2〜3文）"),
                 tech: z.array(z.string()).describe("使用した技術・言語・ツールのリスト"),
-                achievements: z.array(z.string()).describe("STAR法に基づく成果、工夫点、工夫したこと等の箇条書きリスト")
-            })).describe("時系列順（新しいものが上）に並べたプロジェクト履歴配列")
+                achievements: z.array(z.string()).describe("担当業務の詳細内容、実績、工夫した点などをできるだけ具体的に、テキストから漏れなく箇条書きリストとしてすべて抽出してください。")
+            })).describe("時系列順（新しいものが上）に並べたプロジェクト履歴配列。最大10件程度まで抽出してください。")
         });
 
-        const promptText = `提供された職務経歴書（PDF）の抽出テキストから、エンジニアの経歴情報を全て解析し、指定したJSONスキーマ（profile, skills, projects）に構造化して返却してください。情報が不足している項目は空文字や空配列にして構いません。\n\n【抽出テキスト】\n${rawText}`;
+        const promptText = `提供された職務経歴書（PDF）の抽出テキストから、エンジニアの経歴情報を全て解析し、指定したJSONスキーマ（profile, skills, projects）に構造化して返却してください。情報が不足している項目は空文字や空配列にして構いません。特に職務経歴（プロジェクト）の詳細内容は要約しすぎず、できるだけ元のテキストの情報を充実させた状態でリスト化してください。\n\n【抽出テキスト】\n${rawText}`;
 
         const { object } = await generateObject({
             model: openai('gpt-4o-mini'),
