@@ -1,6 +1,8 @@
 import { generateObject } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
+import PDFParser from 'pdf2json';
+
 // Vercel Serverless Functions のタイムアウトを延長（デフォルトから最大60秒に変更）
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
@@ -15,19 +17,17 @@ export async function POST(req: Request) {
         }
 
         // 1. PDFファイルのパース（テキスト抽出）
-        // トップレベルでの require クラッシュを防ぐため関数内で読み込む
-        // Vercel Serverless (Node 18+) 環境対策として DOMMatrix のダミーをグローバルに定義する
-        if (typeof globalThis.DOMMatrix === 'undefined') {
-            Object.defineProperty(globalThis, 'DOMMatrix', { value: class DOMMatrix { } });
-        }
-
-        // eslint-disable-next-line @typescript-eslint/no-require-imports
-        const pdfParse = require('pdf-parse');
-
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
-        const pdfData = await pdfParse(buffer);
-        const rawText = pdfData.text;
+        const rawText = await new Promise<string>((resolve, reject) => {
+            const pdfParser = new PDFParser(null, true);
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            pdfParser.on("pdfParser_dataError", (errData: any) => reject(new Error(errData.parserError)));
+            pdfParser.on("pdfParser_dataReady", () => {
+                resolve(pdfParser.getRawTextContent());
+            });
+            pdfParser.parseBuffer(buffer);
+        });
 
         if (!rawText || rawText.trim() === '') {
             return Response.json({ error: 'Could not extract text from PDF' }, { status: 400 });
