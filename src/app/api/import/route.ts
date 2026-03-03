@@ -38,7 +38,7 @@ export async function POST(req: Request) {
             profile: z.object({
                 name: z.string().describe("氏名"),
                 title: z.string().describe("現在のメイン職種（例: フロントエンドエンジニア）"),
-                age: z.string().describe("生年月日と年齢の両方を網羅するように記載してください（例: '1990年1月1日 (33歳)' またはテキストにある通りの表記）"),
+                age: z.string().describe("生年月日と、本日の日付に基づき正確に再計算した現在の年齢の両方を含めてください（例: '1990年1月1日 (36歳)'）"),
                 address: z.string().describe("住所や居住地（不明な場合は空文字）"),
                 education: z.string().describe("最終学歴（不明な場合は空文字）"),
                 experienceYears: z.string().describe("エンジニアとしての経験年数（不明な場合は空文字）"),
@@ -62,7 +62,12 @@ export async function POST(req: Request) {
             })).describe("時系列順（新しいものが上）に並べたプロジェクト履歴配列。最大10件程度まで抽出してください。")
         });
 
-        const promptText = `提供された職務経歴書（PDF）の抽出テキストから、エンジニアの経歴情報を全て解析し、指定したJSONスキーマ（profile, skills, projects）に構造化して返却してください。情報が不足している項目は空文字や空配列にして構いません。特に職務経歴（プロジェクト）の詳細内容は要約しすぎず、できるだけ元のテキストの情報を充実させた状態でリスト化してください。\n\n【抽出テキスト】\n${rawText}`;
+        const today = new Date();
+        const dateString = `${today.getFullYear()}年${today.getMonth() + 1}月${today.getDate()}日`;
+
+        const promptText = `提供された職務経歴書（PDF）の抽出テキストから、エンジニアの経歴情報を全て解析し、指定したJSONスキーマ（profile, skills, projects）に構造化して返却してください。情報が不足している項目は空文字や空配列にして構いません。
+本日は ${dateString} です。PDFに記載された年齢が古い場合があるため、生年月日が分かる場合は必ず本日時点での正しい年齢を計算して出力してください。
+特に職務経歴（プロジェクト）の詳細内容は要約しすぎず、できるだけ元のテキストの情報を充実させた状態でリスト化してください。\n\n【抽出テキスト】\n${rawText}`;
 
         const { object } = await generateObject({
             model: openai('gpt-4o-mini'),
