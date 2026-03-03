@@ -44,6 +44,27 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
     const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
     const [skillYears, setSkillYears] = useState<Record<string, number>>({});
 
+    // インポート等で親の resumeData(data) が更新されたら、Editorのローカルステートにも同期する
+    React.useEffect(() => {
+        setStep1Data({
+            name: data.profile.name || "",
+            age: data.profile.age || "",
+            title: data.profile.title || "",
+            experienceYears: data.profile.experienceYears || "",
+            address: data.profile.address || "",
+            education: data.profile.education || "",
+        });
+
+        if (data.skills && data.skills.length > 0) {
+            setSelectedSkills(data.skills.map(s => s.subject));
+            const yearsObj: Record<string, number> = {};
+            data.skills.forEach(s => {
+                yearsObj[s.subject] = s.years || 0;
+            });
+            setSkillYears(yearsObj);
+        }
+    }, [data.profile, data.skills]);
+
     // プリセットのスキル選択肢リスト（カテゴリ別に大幅拡充）
     const skillCategories = {
         "Frontend": [
