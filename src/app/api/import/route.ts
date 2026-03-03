@@ -16,6 +16,11 @@ export async function POST(req: Request) {
 
         // 1. PDFファイルのパース（テキスト抽出）
         // トップレベルでの require クラッシュを防ぐため関数内で読み込む
+        // Vercel Serverless (Node 18+) 環境対策として DOMMatrix のダミーをグローバルに定義する
+        if (typeof globalThis.DOMMatrix === 'undefined') {
+            Object.defineProperty(globalThis, 'DOMMatrix', { value: class DOMMatrix { } });
+        }
+
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         const pdfParse = require('pdf-parse');
 
