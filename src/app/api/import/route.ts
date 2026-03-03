@@ -1,9 +1,6 @@
 import { generateObject } from 'ai';
 import { openai } from '@ai-sdk/openai';
 import { z } from 'zod';
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const pdfParse = require('pdf-parse');
-
 // Vercel Serverless Functions のタイムアウトを延長（デフォルトから最大60秒に変更）
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
@@ -18,6 +15,10 @@ export async function POST(req: Request) {
         }
 
         // 1. PDFファイルのパース（テキスト抽出）
+        // トップレベルでの require クラッシュを防ぐため関数内で読み込む
+        // eslint-disable-next-line @typescript-eslint/no-require-imports
+        const pdfParse = require('pdf-parse');
+
         const arrayBuffer = await file.arrayBuffer();
         const buffer = Buffer.from(arrayBuffer);
         const pdfData = await pdfParse(buffer);
@@ -84,6 +85,9 @@ export async function POST(req: Request) {
 
     } catch (error) {
         console.error("PDF Import API Error:", error);
-        return Response.json({ error: 'Failed to process the PDF file.' }, { status: 500 });
+        return Response.json({
+            error: 'Failed to process the PDF file.',
+            details: error instanceof Error ? error.message : String(error)
+        }, { status: 500 });
     }
 }

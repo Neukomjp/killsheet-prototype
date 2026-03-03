@@ -233,7 +233,10 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
                 body: formData,
             });
 
-            if (!res.ok) throw new Error("Import failed");
+            if (!res.ok) {
+                const errorData = await res.json().catch(() => null);
+                throw new Error(`${errorData?.error || 'Import failed'}\n詳細: ${errorData?.details || res.statusText}`);
+            }
 
             const importedData: ResumeData = await res.json();
 
@@ -246,7 +249,8 @@ export default function Editor({ data, isExtracting, onExtract, onDirectUpdate, 
 
         } catch (error) {
             console.error(error);
-            alert("ファイルのインポート・解析に失敗しました。");
+            const msg = error instanceof Error ? error.message : String(error);
+            alert(`ファイルのインポート・解析に失敗しました。\n\n${msg}`);
         } finally {
             setIsImporting(false);
             // reset file input
