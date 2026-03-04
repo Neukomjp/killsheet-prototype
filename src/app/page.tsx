@@ -338,7 +338,7 @@ export default function Home() {
           </button>
 
           {/* ヘッダー右側：ログイン領域 */}
-          <div className="ml-auto flex items-center pr-2">
+          <div className="ml-auto flex items-center pb-3 pr-2 shrink-0">
             {user ? (
               <div className="flex items-center space-x-3 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
                 <span className="text-xs font-medium text-gray-700 truncate max-w-[120px]">
