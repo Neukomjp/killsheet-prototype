@@ -8,6 +8,8 @@ import Editor from "../components/Editor";
 import Preview from "../components/Preview";
 import InterviewPanel from "../components/InterviewPanel";
 import EditDataPanel from "../components/EditDataPanel";
+import { saveResume } from "../actions/resume";
+import ResumesModal from "../components/ResumesModal";
 
 export type InterviewQnA = {
   id: string;
@@ -63,6 +65,9 @@ const initialData: ResumeData = {
 
 export default function Home() {
   const [data, setData] = useState<ResumeData>(initialData);
+  const [resumeId, setResumeId] = useState<string | null>(null);
+  const [resumeTitle, setResumeTitle] = useState<string>("無題の経歴書");
+  const [isSaving, setIsSaving] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false); // 編集モードや面接対策の切り替え用ステート
   const [activeTab, setActiveTab] = useState<"preview" | "edit" | "interview">("preview");
 
@@ -72,6 +77,40 @@ export default function Home() {
   // 認証関連
   const { user, signOut } = useAuth();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isResumesModalOpen, setIsResumesModalOpen] = useState(false);
+
+  // クラウド保存処理
+  const handleSaveToCloud = async () => {
+    if (!user) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+
+    // 簡単なバリデーション（名前がない場合は保存前に注意を促すなど）
+    if (!data.profile.name) {
+      const confirmSave = window.confirm("氏名が入力されていません。このまま保存しますか？");
+      if (!confirmSave) return;
+    }
+
+    setIsSaving(true);
+    try {
+      const title = data.profile.name ? `${data.profile.name}の経歴書` : resumeTitle;
+      const result = await saveResume(resumeId, title, data);
+
+      if (result.success && result.id) {
+        setResumeId(result.id);
+        setResumeTitle(title);
+        alert(result.message);
+      } else {
+        alert(result.error || "保存に失敗しました。");
+      }
+    } catch (error) {
+      console.error("Save error:", error);
+      alert("保存中にエラーが発生しました。");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   // OpenAI等を用いたAI抽出機能（モック動作から実際の処理へ）
   const handleExtract = async (text: string, step: number) => {
@@ -341,9 +380,18 @@ export default function Home() {
           <div className="ml-auto flex items-center pb-3 pr-2 shrink-0">
             {user ? (
               <div className="flex items-center space-x-3 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
-                <span className="text-xs font-medium text-gray-700 truncate max-w-[120px]">
+                <span className="text-xs font-medium text-gray-700 truncate max-w-[120px]" title={user?.email || ''}>
                   {user.email || 'ログイン済み'}
                 </span>
+
+                <button
+                  onClick={handleSaveToCloud}
+                  disabled={isSaving}
+                  className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white text-xs font-bold py-1 px-3 rounded-full transition-colors shadow-sm flex items-center"
+                >
+                  {isSaving ? '保存中...' : '☁️ クラウド保存'}
+                </button>
+
                 <div className="h-4 w-px bg-gray-300"></div>
                 <button
                   onClick={signOut}
@@ -409,6 +457,17 @@ export default function Home() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
+      />
+
+      {/* 過去の履歴書モーダル */}
+      <ResumesModal
+        isOpen={isResumesModalOpen}
+        onClose={() => setIsResumesModalOpen(false)}
+        onLoadResume={(id, title, loadedData) => {
+          setResumeId(id);
+          setResumeTitle(title);
+          setData(loadedData);
+        }}
       />
     </main>
   );
