@@ -116,7 +116,7 @@ export default function InterviewPanel({ data, onUpdateInterviewData }: Intervie
                                 <div className="space-y-2">
                                     <h5 className="font-bold text-sm text-amber-600 uppercase tracking-wider">Advice</h5>
                                     <p className="text-gray-700 leading-relaxed text-sm">
-                                        {qna.advice}
+                                        {qna.aiFeedback}
                                     </p>
                                 </div>
                             </div>

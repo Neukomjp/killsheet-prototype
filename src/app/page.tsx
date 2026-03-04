@@ -2,10 +2,19 @@
 
 import { useState } from "react";
 import confetti from "canvas-confetti";
+import { useAuth } from "../contexts/AuthContext";
+import AuthModal from "../components/AuthModal";
 import Editor from "../components/Editor";
 import Preview from "../components/Preview";
 import InterviewPanel from "../components/InterviewPanel";
 import EditDataPanel from "../components/EditDataPanel";
+
+export type InterviewQnA = {
+  id: string;
+  question: string;
+  answer: string;
+  aiFeedback?: string;
+};
 
 // Profile, Skills, Projects のデータ構造
 export type SkillNode = { subject: string; A: number; fullMark: number; years?: number };
@@ -24,16 +33,11 @@ export type Profile = {
   experienceYears: string; // 職務経験年数
 };
 
-export type InterviewQnA = {
-  question: string;
-  advice: string;
-};
-
 export type ResumeData = {
   profile: Profile;
   skills: SkillNode[];
   projects: Project[];
-  interviewQnAs?: InterviewQnA[];
+  interviewQnAs: InterviewQnA[];
   theme?: "modern" | "classic" | "creative";
 };
 
@@ -59,11 +63,17 @@ const initialData: ResumeData = {
 
 export default function Home() {
   const [data, setData] = useState<ResumeData>(initialData);
-  const [isExtracting, setIsExtracting] = useState(false);
-  const [activeTab, setActiveTab] = useState<"preview" | "interview" | "edit">("preview");
+  const [isExtracting, setIsExtracting] = useState(false); // 編集モードや面接対策の切り替え用ステート
+  const [activeTab, setActiveTab] = useState<"preview" | "edit" | "interview">("preview");
+
+  // スマホ(モバイル)時のビュー切り替え用ステート
   const [mobileView, setMobileView] = useState<"editor" | "preview">("editor");
 
-  // 生成AI APIを呼び出してテキストを構造化する処理
+  // 認証関連
+  const { user, signOut } = useAuth();
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  // OpenAI等を用いたAI抽出機能（モック動作から実際の処理へ）
   const handleExtract = async (text: string, step: number) => {
     setIsExtracting(true);
 
@@ -326,6 +336,31 @@ export default function Home() {
           >
             🎤 AI面接対策
           </button>
+
+          {/* ヘッダー右側：ログイン領域 */}
+          <div className="ml-auto flex items-center pr-2">
+            {user ? (
+              <div className="flex items-center space-x-3 bg-gray-50 px-3 py-1.5 rounded-full border border-gray-200">
+                <span className="text-xs font-medium text-gray-700 truncate max-w-[120px]">
+                  {user.email || 'ログイン済み'}
+                </span>
+                <div className="h-4 w-px bg-gray-300"></div>
+                <button
+                  onClick={signOut}
+                  className="text-xs text-red-600 hover:text-red-700 font-bold transition-colors"
+                >
+                  ログアウト
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setIsAuthModalOpen(true)}
+                className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold py-1.5 px-4 rounded-full transition-colors flex items-center shadow-sm"
+              >
+                ログイン / 保存
+              </button>
+            )}
+          </div>
         </div>
 
         {/* プレビュービューア部分 */}
@@ -369,6 +404,12 @@ export default function Home() {
           📄 プレビュー
         </button>
       </div>
+
+      {/* 認証モーダル */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+      />
     </main>
   );
 }
